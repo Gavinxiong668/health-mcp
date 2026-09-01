@@ -319,3 +319,142 @@ export const canonicalActivityTypeSchema = z.enum([
   'other',
 ]);
 export type CanonicalActivityType = z.infer<typeof canonicalActivityTypeSchema>;
+
+// ── Clinical extensions ──
+
+export const bpPositionSchema = z.enum(['sitting', 'standing', 'lying']);
+export const bpArmSchema = z.enum(['left', 'right']);
+
+export const logBloodPressureInputSchema = z.object({
+  systolic: z.number().int().min(40).max(300),
+  diastolic: z.number().int().min(20).max(200),
+  pulse: z.number().int().min(20).max(250).optional(),
+  position: bpPositionSchema.optional(),
+  arm: bpArmSchema.optional(),
+  ts: isoTimestamp.optional(),
+  notes: z.string().optional(),
+});
+export type LogBloodPressureInput = z.infer<typeof logBloodPressureInputSchema>;
+
+export const dialysisModalitySchema = z.enum(['hemodialysis', 'peritoneal', 'hdf', 'hf', 'online_hdf']);
+export const dialysisAccessTypeSchema = z.enum(['avf', 'avg', 'cvc', 'pd_catheter', 'other']);
+
+export const logDialysisInputSchema = z.object({
+  modality: dialysisModalitySchema,
+  duration_min: z.number().int().positive().optional(),
+  location: z.string().optional(),
+  access_type: dialysisAccessTypeSchema.optional(),
+  access_site: z.string().optional(),
+  access_notes: z.string().optional(),
+  pre_weight_kg: z.number().positive().optional(),
+  post_weight_kg: z.number().positive().optional(),
+  dry_weight_kg: z.number().positive().optional(),
+  ultrafiltration_ml: z.number().optional(),
+  complications: z.array(z.string()).optional(),
+  symptoms: z.array(z.string()).optional(),
+  complication_notes: z.string().optional(),
+  ts: isoTimestamp.optional(),
+  notes: z.string().optional(),
+});
+export type LogDialysisInput = z.infer<typeof logDialysisInputSchema>;
+
+export const updateDialysisInputSchema = z.object({
+  id: z.string().min(1),
+  modality: dialysisModalitySchema.optional(),
+  duration_min: z.number().int().positive().nullable().optional(),
+  location: z.string().nullable().optional(),
+  access_type: dialysisAccessTypeSchema.nullable().optional(),
+  access_site: z.string().nullable().optional(),
+  access_notes: z.string().nullable().optional(),
+  pre_weight_kg: z.number().positive().nullable().optional(),
+  post_weight_kg: z.number().positive().nullable().optional(),
+  dry_weight_kg: z.number().positive().nullable().optional(),
+  ultrafiltration_ml: z.number().nullable().optional(),
+  complications: z.array(z.string()).nullable().optional(),
+  symptoms: z.array(z.string()).nullable().optional(),
+  complication_notes: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+});
+export type UpdateDialysisInput = z.infer<typeof updateDialysisInputSchema>;
+
+export const painTypeSchema = z.enum(['sharp', 'dull', 'aching', 'burning', 'throbbing', 'stabbing', 'tingling', 'other']);
+
+export const logPainInputSchema = z.object({
+  score: z.number().int().min(0).max(10),
+  location: z.string().optional(),
+  type: painTypeSchema.optional(),
+  duration_min: z.number().int().positive().optional(),
+  triggers: z.array(z.string()).optional(),
+  relief_methods: z.array(z.string()).optional(),
+  ts: isoTimestamp.optional(),
+  notes: z.string().optional(),
+});
+export type LogPainInput = z.infer<typeof logPainInputSchema>;
+
+export const medicationCategorySchema = z.enum(['prescription', 'otc', 'supplement', 'vitamin', 'mineral', 'herbal', 'other']);
+export const timeOfDaySchema = z.enum(['morning', 'noon', 'evening', 'bedtime']);
+
+export const createMedicationInputSchema = z.object({
+  name: z.string().min(1),
+  category: medicationCategorySchema.optional(),
+  dose_amount: z.number().positive().optional(),
+  dose_unit: z.string().min(1).optional(),
+  frequency: z.string().optional(),
+  time_of_day: z.array(timeOfDaySchema).optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  prescriber: z.string().optional(),
+  indication: z.string().optional(),
+  notes: z.string().optional(),
+});
+export type CreateMedicationInput = z.infer<typeof createMedicationInputSchema>;
+
+export const updateMedicationInputSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1).optional(),
+  category: medicationCategorySchema.nullable().optional(),
+  dose_amount: z.number().positive().nullable().optional(),
+  dose_unit: z.string().nullable().optional(),
+  frequency: z.string().nullable().optional(),
+  time_of_day: z.array(timeOfDaySchema).nullable().optional(),
+  start_date: z.string().nullable().optional(),
+  end_date: z.string().nullable().optional(),
+  prescriber: z.string().nullable().optional(),
+  indication: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
+  active: z.boolean().optional(),
+});
+export type UpdateMedicationInput = z.infer<typeof updateMedicationInputSchema>;
+
+export const logMedicationDoseInputSchema = z.object({
+  medication_id: z.string().min(1),
+  dose_amount: z.number().positive().optional(),
+  dose_unit: z.string().min(1).optional(),
+  taken: z.boolean().optional(),
+  skipped: z.boolean().optional(),
+  ts: isoTimestamp.optional(),
+  notes: z.string().optional(),
+});
+export type LogMedicationDoseInput = z.infer<typeof logMedicationDoseInputSchema>;
+
+export const logDiaryInputSchema = z.object({
+  mood: z.number().int().min(1).max(5).optional(),
+  energy: z.number().int().min(1).max(5).optional(),
+  sleep_quality: z.number().int().min(1).max(5).optional(),
+  appetite: z.number().int().min(1).max(5).optional(),
+  symptoms: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  ts: isoTimestamp.optional(),
+  notes: z.string().optional(),
+});
+export type LogDiaryInput = z.infer<typeof logDiaryInputSchema>;
+
+export const fluidOutputKindSchema = z.enum(['urine', 'sweat', 'vomit', 'drain', 'stool', 'other']);
+
+export const logFluidOutputInputSchema = z.object({
+  kind: fluidOutputKindSchema,
+  ml: z.number().int().positive(),
+  ts: isoTimestamp.optional(),
+  notes: z.string().optional(),
+});
+export type LogFluidOutputInput = z.infer<typeof logFluidOutputInputSchema>;

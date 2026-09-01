@@ -1,0 +1,201 @@
+{
+  "name": "健康告警 (Health Alert)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "trigger-schedule",
+      "name": "每5分钟检查",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:7777/api/blood-pressure",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.HEALTH_MCP_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-bp",
+      "name": "查询最新血压",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 检查血压是否超过阈值\nconst bpData = $input.first().json;\nconst entries = bpData.entries || bpData;\nconst alerts = [];\n\nif (Array.isArray(entries) && entries.length > 0) {\n  const latest = entries[0];\n  const systolic = Number(latest.systolic);\n  const diastolic = Number(latest.diastolic);\n  \n  if (systolic > 160) {\n    alerts.push({\n      type: 'HIGH_BP_SYSTOLIC',\n      severity: systolic > 180 ? 'CRITICAL' : 'WARNING',\n      metric: '收缩压',\n      value: systolic,\n      threshold: 160,\n      unit: 'mmHg',\n      detail: `收缩压 ${systolic} mmHg 超过阈值 160 mmHg${systolic > 180 ? '（危险！）' : '（偏高）'}`\n    });\n  }\n  if (diastolic > 100) {\n    alerts.push({\n      type: 'HIGH_BP_DIASTOLIC',\n      severity: diastolic > 110 ? 'CRITICAL' : 'WARNING',\n      metric: '舒张压',\n      value: diastolic,\n      threshold: 100,\n      unit: 'mmHg',\n      detail: `舒张压 ${diastolic} mmHg 超过阈值 100 mmHg`\n    });\n  }\n}\n\nreturn [{ json: { alerts, bpChecked: true, timestamp: new Date().toISOString() } }];"
+      },
+      "id": "code-check-bp",
+      "name": "检查血压阈值",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:7777/api/lab-results",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.HEALTH_MCP_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-labs",
+      "name": "查询最新化验结果",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 检查血钾是否超过阈值\nconst labData = $input.first().json;\nconst results = labData.results || labData;\nconst prevAlerts = $('检查血压阈值').first().json.alerts || [];\nconst alerts = [...prevAlerts];\n\nif (Array.isArray(results)) {\n  // 查找血钾结果（biomarker_id 或名称包含 potassium/钾）\n  const potassiumResults = results.filter(r => {\n    const name = (r.biomarker_name || '').toLowerCase();\n    return name.includes('potassium') || name.includes('钾') || r.biomarker_id === 'potassium';\n  });\n  \n  if (potassiumResults.length > 0) {\n    const latest = potassiumResults[0];\n    const value = Number(latest.value_numeric);\n    \n    if (value > 5.0) {\n      alerts.push({\n        type: 'HIGH_POTASSIUM',\n        severity: value > 6.0 ? 'CRITICAL' : 'WARNING',\n        metric: '血钾',\n        value: value,\n        threshold: 5.0,\n        unit: latest.unit_ucum || 'mmol/L',\n        detail: `血钾 ${value} mmol/L 超过阈值 5.0 mmol/L${value > 6.0 ? '（危险！需立即就医）' : '（偏高）'}`\n      });\n    }\n  }\n}\n\nreturn [{ json: { alerts, timestamp: new Date().toISOString() } }];"
+      },
+      "id": "code-check-potassium",
+      "name": "检查血钾阈值",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, 0]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-alerts",
+              "leftValue": "={{ $json.alerts.length }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-has-alerts",
+      "name": "有告警?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1100, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 构建告警消息\nconst alerts = $input.first().json.alerts;\nconst timestamp = $input.first().json.timestamp;\nconst time = new Date(timestamp).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });\n\nconst hasCritical = alerts.some(a => a.severity === 'CRITICAL');\nconst emoji = hasCritical ? '🚨' : '⚠️';\nconst title = hasCritical ? '紧急健康告警' : '健康告警';\n\n// 构建告警详情\nconst alertDetails = alerts.map(a => {\n  const icon = a.severity === 'CRITICAL' ? '🔴' : '🟡';\n  return `${icon} **${a.metric}**: ${a.value} ${a.unit} (阈值: ${a.threshold})`;\n}).join('\\n');\n\nconst suggestions = alerts.map(a => {\n  if (a.type === 'HIGH_BP_SYSTOLIC' || a.type === 'HIGH_BP_DIASTOLIC') {\n    return '- 静坐休息，避免剧烈活动\\n- 如持续偏高，联系医生调整降压药\\n- 减少盐分摄入';\n  }\n  if (a.type === 'HIGH_POTASSIUM') {\n    return '- 立即停止高钾食物（香蕉、橙子、土豆等）\\n- 如 > 6.0 需立即就医\\n- 联系医生检查是否需要降钾药物';\n  }\n  return '- 请关注相关指标';\n}).join('\\n');\n\nconst markdown = {\n  title: `${emoji} ${title}`,\n  text: `## ${emoji} ${title}\\n**时间**: ${time}\\n\\n### 告警详情\\n${alertDetails}\\n\\n### 建议措施\\n${suggestions}\\n\\n---\\n*health-mcp 自动告警系统*`\n};\n\nreturn [{ json: { markdown } }];"
+      },
+      "id": "code-format-alert",
+      "name": "格式化告警消息",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DINGTALK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"msgtype\": \"markdown\",\n  \"markdown\": {{ JSON.stringify($json.markdown) }}\n}",
+        "options": {}
+      },
+      "id": "http-dingtalk-alert",
+      "name": "推送告警至钉钉",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 0]
+    }
+  ],
+  "connections": {
+    "每5分钟检查": {
+      "main": [
+        [{ "node": "查询最新血压", "type": "main", "index": 0 }]
+      ]
+    },
+    "查询最新血压": {
+      "main": [
+        [{ "node": "检查血压阈值", "type": "main", "index": 0 }]
+      ]
+    },
+    "检查血压阈值": {
+      "main": [
+        [{ "node": "查询最新化验结果", "type": "main", "index": 0 }]
+      ]
+    },
+    "查询最新化验结果": {
+      "main": [
+        [{ "node": "检查血钾阈值", "type": "main", "index": 0 }]
+      ]
+    },
+    "检查血钾阈值": {
+      "main": [
+        [{ "node": "有告警?", "type": "main", "index": 0 }]
+      ]
+    },
+    "有告警?": {
+      "main": [
+        [{ "node": "格式化告警消息", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "格式化告警消息": {
+      "main": [
+        [{ "node": "推送告警至钉钉", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "health-mcp" },
+    { "name": "alert" }
+  ]
+}

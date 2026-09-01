@@ -41,9 +41,9 @@ const RootGate = () => {
     return (
       <div className="grid min-h-screen place-items-center">
         <div className="space-y-1 text-center">
-          <p className="text-sm font-medium">Server unreachable</p>
+          <p className="text-sm font-medium">服务器无法连接</p>
           <p className="text-xs text-kumo-subtle">
-            Is health-mcp running? Default URL is http://localhost:7777
+            health-mcp 是否正在运行？默认地址为 http://localhost:7777
           </p>
         </div>
       </div>
@@ -59,7 +59,7 @@ export const Route = createRootRoute({
   component: RootGate,
   notFoundComponent: () => (
     <div className="grid min-h-screen place-items-center">
-      <p className="text-sm text-kumo-subtle">Not found.</p>
+      <p className="text-sm text-kumo-subtle">页面未找到。</p>
     </div>
   ),
 });

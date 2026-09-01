@@ -9,11 +9,15 @@ import {
   CalendarCheck,
   ChefHat,
   CookingPot,
+  FileText,
+  Heart,
   History,
   Menu,
+  Pill,
   Salad,
   Settings,
   Sparkles,
+  Stethoscope,
   Target,
   Watch,
   X,
@@ -24,27 +28,36 @@ import { useEffect, useState } from 'react';
 type NavItem = { to: string; label: string; icon: LucideIcon };
 
 const NAV_PRIMARY: NavItem[] = [
-  { to: '/today', label: 'Today', icon: CalendarCheck },
-  { to: '/log', label: 'Log', icon: History },
-  { to: '/trends', label: 'Trends', icon: BarChart3 },
-  { to: '/insights', label: 'Insights', icon: Sparkles },
+  { to: '/today', label: '今日', icon: CalendarCheck },
+  { to: '/log', label: '日志', icon: History },
+  { to: '/trends', label: '趋势', icon: BarChart3 },
+  { to: '/report', label: '报告', icon: FileText },
+  { to: '/insights', label: '洞察', icon: Sparkles },
 ];
 
 const NAV_LIBRARY: NavItem[] = [
-  { to: '/foods', label: 'Foods', icon: Salad },
-  { to: '/recipes', label: 'Recipes', icon: ChefHat },
-  { to: '/batches', label: 'Batches', icon: CookingPot },
+  { to: '/foods', label: '食物', icon: Salad },
+  { to: '/recipes', label: '食谱', icon: ChefHat },
+  { to: '/batches', label: '批次', icon: CookingPot },
 ];
 
 const NAV_SIGNALS: NavItem[] = [
-  { to: '/labs', label: 'Labs', icon: Beaker },
-  { to: '/wearables', label: 'Wearables', icon: Watch },
-  { to: '/goals', label: 'Goals', icon: Target },
+  { to: '/labs', label: '化验', icon: Beaker },
+  { to: '/wearables', label: '可穿戴', icon: Watch },
+  { to: '/goals', label: '目标', icon: Target },
 ];
 
-const NAV_SETTINGS: NavItem = { to: '/settings', label: 'Settings', icon: Settings };
+const NAV_CLINICAL: NavItem[] = [
+  { to: '/blood-pressure', label: '血压', icon: Heart },
+  { to: '/dialysis', label: '透析', icon: Stethoscope },
+  { to: '/pain', label: '疼痛', icon: Sparkles },
+  { to: '/medications', label: '用药', icon: Pill },
+  { to: '/diary', label: '日记', icon: CalendarCheck },
+];
 
-const ALL_NAV: NavItem[] = [...NAV_PRIMARY, ...NAV_LIBRARY, ...NAV_SIGNALS, NAV_SETTINGS];
+const NAV_SETTINGS: NavItem = { to: '/settings', label: '设置', icon: Settings };
+
+const ALL_NAV: NavItem[] = [...NAV_PRIMARY, ...NAV_LIBRARY, ...NAV_SIGNALS, ...NAV_CLINICAL, NAV_SETTINGS];
 
 const isActivePath = (path: string, to: string): boolean =>
   path === to || (to !== '/today' && path.startsWith(to));
@@ -118,16 +131,17 @@ const Brand = ({ onNavigate }: { onNavigate?: () => void }) => (
     />
     <div className="flex flex-col leading-none">
       <span className="text-sm font-semibold tracking-tight text-kumo-strong">health-mcp</span>
-      <span className="mt-0.5 text-[10px] text-kumo-subtle">your data, your model</span>
+      <span className="mt-0.5 text-[10px] text-kumo-subtle">你的数据，你的模型</span>
     </div>
   </Link>
 );
 
 const NavSections = ({ path, onNavigate }: { path: string; onNavigate?: () => void }) => (
   <>
-    <NavGroup label="Daily" items={NAV_PRIMARY} path={path} onNavigate={onNavigate} />
-    <NavGroup label="Library" items={NAV_LIBRARY} path={path} onNavigate={onNavigate} />
-    <NavGroup label="Signals" items={NAV_SIGNALS} path={path} onNavigate={onNavigate} />
+    <NavGroup label="每日" items={NAV_PRIMARY} path={path} onNavigate={onNavigate} />
+    <NavGroup label="资料库" items={NAV_LIBRARY} path={path} onNavigate={onNavigate} />
+    <NavGroup label="信号" items={NAV_SIGNALS} path={path} onNavigate={onNavigate} />
+    <NavGroup label="临床" items={NAV_CLINICAL} path={path} onNavigate={onNavigate} />
   </>
 );
 
@@ -160,7 +174,7 @@ const MobileNav = ({ path }: { path: string }) => {
             shape="square"
             size="sm"
             icon={<Menu className="h-5 w-5" />}
-            aria-label="Open navigation"
+            aria-label="打开导航"
           />
         )}
       />
@@ -168,7 +182,7 @@ const MobileNav = ({ path }: { path: string }) => {
         <div className="flex items-center justify-between">
           <Brand onNavigate={() => setOpen(false)} />
           <Dialog.Close
-            aria-label="Close navigation"
+            aria-label="关闭导航"
             render={(p) => (
               <Button
                 {...p}
@@ -176,7 +190,7 @@ const MobileNav = ({ path }: { path: string }) => {
                 shape="square"
                 size="sm"
                 icon={<X className="h-4 w-4" />}
-                aria-label="Close"
+                aria-label="关闭"
               />
             )}
           />
@@ -210,7 +224,7 @@ export const AppShell = () => {
           </span>
           <Link
             to="/today"
-            aria-label="Home"
+            aria-label="首页"
             className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-md"
           >
             <img

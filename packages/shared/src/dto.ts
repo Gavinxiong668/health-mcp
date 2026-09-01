@@ -408,6 +408,108 @@ export type WhoopBodyDto = {
   updated_at: string;
 };
 
+export type BloodPressureEntryDto = {
+  id: string;
+  ts: string;
+  date: string;
+  systolic: number;
+  diastolic: number;
+  pulse: number | null;
+  position: 'sitting' | 'standing' | 'lying' | null;
+  arm: 'left' | 'right' | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type DialysisSessionDto = {
+  id: string;
+  ts: string;
+  date: string;
+  modality: 'hemodialysis' | 'peritoneal' | 'hdf' | 'hf' | 'online_hdf';
+  duration_min: number | null;
+  location: string | null;
+  access_type: 'avf' | 'avg' | 'cvc' | 'pd_catheter' | 'other' | null;
+  access_site: string | null;
+  access_notes: string | null;
+  pre_weight_kg: number | null;
+  post_weight_kg: number | null;
+  dry_weight_kg: number | null;
+  ultrafiltration_ml: number | null;
+  complications: string | null;
+  symptoms: string | null;
+  complication_notes: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type PainEntryDto = {
+  id: string;
+  ts: string;
+  date: string;
+  score: number;
+  location: string | null;
+  type: 'sharp' | 'dull' | 'aching' | 'burning' | 'throbbing' | 'stabbing' | 'tingling' | 'other' | null;
+  duration_min: number | null;
+  triggers: string | null;
+  relief_methods: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type MedicationDto = {
+  id: string;
+  name: string;
+  category: 'prescription' | 'otc' | 'supplement' | 'vitamin' | 'mineral' | 'herbal' | 'other' | null;
+  dose_amount: number | null;
+  dose_unit: string | null;
+  frequency: string | null;
+  time_of_day: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  prescriber: string | null;
+  indication: string | null;
+  notes: string | null;
+  active: number;
+  created_at: string;
+};
+
+export type MedicationLogEntryDto = {
+  id: string;
+  medication_id: string;
+  ts: string;
+  date: string;
+  dose_amount: number | null;
+  dose_unit: string | null;
+  taken: number;
+  skipped: number;
+  notes: string | null;
+  created_at: string;
+};
+
+export type DiaryEntryDto = {
+  id: string;
+  ts: string;
+  date: string;
+  mood: number | null;
+  energy: number | null;
+  sleep_quality: number | null;
+  appetite: number | null;
+  symptoms: string | null;
+  tags: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export type FluidOutputEntryDto = {
+  id: string;
+  ts: string;
+  date: string;
+  kind: 'urine' | 'sweat' | 'vomit' | 'drain' | 'stool' | 'other';
+  ml: number;
+  notes: string | null;
+  created_at: string;
+};
+
 export type ApiErrorDto = {
   code: string;
   message: string;

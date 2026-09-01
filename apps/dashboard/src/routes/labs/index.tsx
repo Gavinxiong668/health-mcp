@@ -28,22 +28,22 @@ const LabsIndex = () => {
   return (
     <>
       <PageHeader
-        title="Labs"
-        description="Latest biomarker values. Click any marker for full history."
+        title="化验"
+        description="最新生物标志物数值。点击任意标志查看完整历史。"
         actions={
           <Button
             size="sm"
             variant={outOnly ? 'default' : 'outline'}
             onClick={() => setOutOnly((v) => !v)}
           >
-            Out of range only
+            仅显示异常
           </Button>
         }
       />
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <Card>
           <CardHeader>
-            <CardTitle>Latest biomarkers</CardTitle>
+            <CardTitle>最新生物标志物</CardTitle>
           </CardHeader>
           <CardContent>
             {latest.isLoading ? (
@@ -51,8 +51,8 @@ const LabsIndex = () => {
             ) : !latest.data?.length ? (
               <Empty
                 icon={Beaker}
-                title={outOnly ? 'Nothing out of range' : 'No lab results yet'}
-                description="Log a lab panel via MCP or REST to populate this."
+                title={outOnly ? '无异常项' : '暂无化验结果'}
+                description="通过 MCP 或 REST 记录化验面板数据。"
               />
             ) : (
               <ul className="grid gap-2 sm:grid-cols-2">
@@ -97,13 +97,13 @@ const LabsIndex = () => {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Panels</CardTitle>
+            <CardTitle>化验面板</CardTitle>
           </CardHeader>
           <CardContent>
             {panels.isLoading ? (
               <Spinner />
             ) : sortedPanels.length === 0 ? (
-              <Empty title="No panels logged" />
+              <Empty title="暂无化验面板" />
             ) : (
               <ul className="space-y-1">
                 {sortedPanels.map((p) => (
@@ -115,7 +115,7 @@ const LabsIndex = () => {
                     >
                       <div className="min-w-0">
                         <div className="truncate font-medium text-kumo-default">
-                          {p.name ?? p.lab_name ?? 'Panel'}
+                          {p.name ?? p.lab_name ?? '面板'}
                         </div>
                         <div className="text-xs text-kumo-subtle">{fmtDate(p.drawn_at)}</div>
                       </div>

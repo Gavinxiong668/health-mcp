@@ -35,7 +35,7 @@ export type Config = {
 
 const DEFAULTS = {
   port: 7777,
-  host: '127.0.0.1',
+  host: '0.0.0.0',
   dashboard: true,
   whoopSyncCron: '*/30 * * * *',
   logLevel: 'info' as LogLevel,

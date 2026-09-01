@@ -1,0 +1,29 @@
+# ============================================
+# n8n 自动化工作流 Docker Compose 配置
+# 用法: docker compose -f docker-compose.n8n.yml up -d
+# ============================================
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - GENERIC_TIMEZONE=Asia/Shanghai
+      - TZ=Asia/Shanghai
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - WEBHOOK_URL=http://localhost:5678/
+      # ↓↓↓ 修改为你的实际值 ↓↓↓
+      - HEALTH_MCP_TOKEN=your_health_mcp_token_here
+      - DINGTALK_WEBHOOK_URL=https://oapi.dingtalk.com/robot/send?access_token=YOUR_TOKEN
+    volumes:
+      - n8n_data:/home/node/.n8n
+    extra_hosts:
+      # 允许容器通过 host.docker.internal 访问宿主机上的 health-mcp 和 Ollama
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  n8n_data:

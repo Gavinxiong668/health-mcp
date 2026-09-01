@@ -13,14 +13,14 @@ export type MacroMeta = {
 // Display identity for each macro ring — label, unit suffix, and a stable color.
 // kcal is always the hero ring; the rest are the trackable Today rings.
 export const MACRO_META: Record<MacroKey, MacroMeta> = {
-  kcal: { label: 'kcal', unit: '', color: 'var(--color-kumo-brand)' },
-  protein_g: { label: 'protein', unit: 'g', color: 'var(--macro-protein)' },
-  carb_g: { label: 'carbs', unit: 'g', color: 'var(--macro-carb)' },
-  fat_g: { label: 'fat', unit: 'g', color: 'var(--macro-fat)' },
-  fiber_g: { label: 'fiber', unit: 'g', color: 'var(--macro-fiber)' },
-  sugar_g: { label: 'sugar', unit: 'g', color: 'var(--macro-sugar)' },
-  sat_fat_g: { label: 'sat fat', unit: 'g', color: 'var(--macro-sat-fat)' },
-  sodium_mg: { label: 'sodium', unit: 'mg', color: 'var(--macro-sodium)' },
+  kcal: { label: '热量', unit: '', color: 'var(--color-kumo-brand)' },
+  protein_g: { label: '蛋白质', unit: 'g', color: 'var(--macro-protein)' },
+  carb_g: { label: '碳水', unit: 'g', color: 'var(--macro-carb)' },
+  fat_g: { label: '脂肪', unit: 'g', color: 'var(--macro-fat)' },
+  fiber_g: { label: '纤维', unit: 'g', color: 'var(--macro-fiber)' },
+  sugar_g: { label: '糖', unit: 'g', color: 'var(--macro-sugar)' },
+  sat_fat_g: { label: '饱和脂肪', unit: 'g', color: 'var(--macro-sat-fat)' },
+  sodium_mg: { label: '钠', unit: 'mg', color: 'var(--macro-sodium)' },
 };
 
 // Goal status → accent color. `in_range` and `over` carry meaning; `under`/`no_goal`
@@ -34,9 +34,9 @@ export const MACRO_STATUS_COLOR: Record<GoalStatus, string | null> = {
 
 export const MACRO_STATUS_LABEL: Record<GoalStatus, string> = {
   no_goal: '',
-  under: 'low',
-  in_range: 'on track',
-  over: 'over',
+  under: '偏低',
+  in_range: '达标',
+  over: '超标',
 };
 
 export const primaryTarget = (bound: GoalBound): number | null => bound.max ?? bound.min;

@@ -23,10 +23,10 @@ type Props = {
 };
 
 const refKindLabel: Record<MealComponentDto['ref_kind'], string> = {
-  food: 'Food',
-  recipe_serving: 'Recipe',
-  batch: 'Batch',
-  custom: 'Custom',
+  food: '食物',
+  recipe_serving: '食谱',
+  batch: '批次',
+  custom: '自定义',
 };
 
 const componentLabel = (c: MealComponentDto): string => c.display_name ?? refKindLabel[c.ref_kind];
@@ -38,9 +38,9 @@ const titleFor = (meal: MealDto): string => {
 };
 
 const portion = (c: MealComponentDto): string | null => {
-  if (c.grams != null) return `${fmtNum(c.grams, 0)} g`;
+  if (c.grams != null) return `${fmtNum(c.grams, 0)} 克`;
   if (c.servings != null) {
-    return c.servings === 1 ? '1 serving' : `${fmtNum(c.servings, 1)} servings`;
+    return c.servings === 1 ? '1 份' : `${fmtNum(c.servings, 1)} 份`;
   }
   return null;
 };
@@ -71,13 +71,13 @@ type Nutrient = { label: string; value: number; unit: string };
 
 const nutrientsOf = (c: MealComponentDto): Nutrient[] => {
   const all: { label: string; value: number | null; unit: string }[] = [
-    { label: 'Protein', value: c.protein_g, unit: 'g' },
-    { label: 'Carbs', value: c.carb_g, unit: 'g' },
-    { label: 'Fat', value: c.fat_g, unit: 'g' },
-    { label: 'Fiber', value: c.fiber_g, unit: 'g' },
-    { label: 'Sugar', value: c.sugar_g, unit: 'g' },
-    { label: 'Sat fat', value: c.sat_fat_g, unit: 'g' },
-    { label: 'Sodium', value: c.sodium_mg, unit: 'mg' },
+    { label: '蛋白质', value: c.protein_g, unit: 'g' },
+    { label: '碳水', value: c.carb_g, unit: 'g' },
+    { label: '脂肪', value: c.fat_g, unit: 'g' },
+    { label: '纤维', value: c.fiber_g, unit: 'g' },
+    { label: '糖', value: c.sugar_g, unit: 'g' },
+    { label: '饱和脂肪', value: c.sat_fat_g, unit: 'g' },
+    { label: '钠', value: c.sodium_mg, unit: 'mg' },
   ];
   return all.filter((n): n is Nutrient => n.value != null);
 };
@@ -118,7 +118,7 @@ const ComponentDetail = ({
             {port ? <span>{port}</span> : null}
             {showConfidence ? (
               <span className={confidenceTone(component.confidence)}>
-                {fmtNum(component.confidence * 100, 0)}% confident
+                {fmtNum(component.confidence * 100, 0)}% 置信度
               </span>
             ) : null}
           </p>
@@ -130,7 +130,7 @@ const ComponentDetail = ({
               variant="ghost"
               size="sm"
               shape="square"
-              aria-label={`Remove ${name}`}
+              aria-label={`移除 ${name}`}
               disabled={busy}
               onClick={() => onRemove(component.id)}
             >
@@ -196,7 +196,7 @@ export const MealCard = ({
         ) : meal.components.length > 1 ? (
           <>
             <span aria-hidden="true">·</span>
-            <span className="tabular-nums">{meal.components.length} items</span>
+            <span className="tabular-nums">{meal.components.length} 项</span>
           </>
         ) : null}
         {showConfidence && meal.totals.avg_confidence !== null ? (
@@ -204,9 +204,9 @@ export const MealCard = ({
             <span aria-hidden="true">·</span>
             <span
               className={cn('tabular-nums', confidenceTone(meal.totals.avg_confidence))}
-              title="Average component confidence (0–1)."
+              title="平均组件置信度 (0–1)"
             >
-              {fmtNum(meal.totals.avg_confidence * 100, 0)}% confident
+              {fmtNum(meal.totals.avg_confidence * 100, 0)}% 置信度
             </span>
           </>
         ) : null}
@@ -224,7 +224,7 @@ export const MealCard = ({
                 <button
                   type="button"
                   {...(p as Record<string, unknown>)}
-                  aria-label={`View components of ${title}`}
+                  aria-label={`查看 ${title} 的组件`}
                   className="min-w-0 flex-1 cursor-pointer rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kumo-line"
                 >
                   {summary}
@@ -241,7 +241,7 @@ export const MealCard = ({
                   <span aria-hidden="true">·</span>
                   <span>
                     {meal.components.length}{' '}
-                    {meal.components.length === 1 ? 'component' : 'components'}
+                    {meal.components.length === 1 ? '个组件' : '个组件'}
                   </span>
                 </p>
               </DialogHeader>
@@ -271,7 +271,7 @@ export const MealCard = ({
 
               <DialogFooter>
                 <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-                  Done
+                  完成
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -284,7 +284,7 @@ export const MealCard = ({
             variant="ghost"
             size="sm"
             shape="square"
-            aria-label={`Delete ${title}`}
+            aria-label={`删除 ${title}`}
             className="-mr-1 shrink-0 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus-visible:opacity-100"
             disabled={busy}
             onClick={() => onDeleteMeal(meal.id)}

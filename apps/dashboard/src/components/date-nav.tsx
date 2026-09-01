@@ -17,8 +17,8 @@ const shiftIso = (iso: string, days: number): string => {
 
 const friendlyLabel = (iso: string): string => {
   const today = todayIso();
-  if (iso === today) return 'Today';
-  if (iso === shiftIso(today, -1)) return 'Yesterday';
+  if (iso === today) return '今天';
+  if (iso === shiftIso(today, -1)) return '昨天';
   const sameYear = iso.slice(0, 4) === today.slice(0, 4);
   return format(parseISO(iso), sameYear ? 'EEE, MMM d' : 'MMM d, yyyy');
 };
@@ -42,7 +42,7 @@ export const DateNav = ({
         variant="ghost"
         size="sm"
         shape="square"
-        aria-label="Previous day"
+        aria-label="前一天"
         onClick={() => onChange(shiftIso(date, -1))}
       >
         <ChevronLeft className="h-4 w-4" aria-hidden="true" />
@@ -54,7 +54,7 @@ export const DateNav = ({
             <button
               {...(triggerProps as Record<string, unknown>)}
               type="button"
-              aria-label={`Change date, ${label} selected`}
+              aria-label={`更改日期，已选择 ${label}`}
               className="inline-flex h-8 min-w-[7.5rem] cursor-pointer items-center justify-center gap-2 rounded-md px-2.5 text-sm font-medium tabular-nums text-kumo-strong transition-colors hover:bg-kumo-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kumo-focus"
             >
               <CalendarDays className="h-4 w-4 shrink-0 text-kumo-subtle" aria-hidden="true" />
@@ -63,7 +63,7 @@ export const DateNav = ({
           )}
         />
         <Popover.Content className="w-auto p-2">
-          <Popover.Title className="sr-only">Select date</Popover.Title>
+          <Popover.Title className="sr-only">选择日期</Popover.Title>
           <DatePicker
             mode="single"
             selected={selected}
@@ -81,7 +81,7 @@ export const DateNav = ({
         variant="ghost"
         size="sm"
         shape="square"
-        aria-label="Next day"
+        aria-label="后一天"
         disabled={atToday}
         className={cn(
           'transition-[opacity,transform] duration-200 ease-out motion-reduce:transition-none',

@@ -14,6 +14,7 @@ Migrations live in `apps/server/src/db/sql/000N-*.ts`. They run automatically on
 | `0010-relax-meal-components-custom-check.ts` | rebuilds `meal_components` to relax the custom-component `CHECK` so absolute-totals customs (`grams` NULL) are accepted |
 | `0011-goal-tracking-and-nutrients.ts` | adds `sugar_g` / `sodium_mg` goal bounds and a `tracked_macros` selection (the Today rings) to `goals` |
 | `0012-food-micros-aliases-external-id.ts` | adds `external_id` (partial-unique) + `aliases` + micronutrients (potassium/calcium/magnesium/iron) to `foods`; rebuilds `foods_fts` to index `aliases`; adds the four micros to `meal_components`, to `batches` (as `_total`), and to the `intake_v` view |
+| `0020-clinical-extensions.ts` | adds 7 clinical tables: `blood_pressure_entries`, `dialysis_sessions`, `pain_entries`, `medications`, `medication_log`, `diary_entries`, `fluid_output_entries` |
 
 ## Nutrition
 
@@ -80,6 +81,32 @@ Many-to-many. Glucose lives in both `CMP` and `Glycemic`; ferritin in `Iron` and
 `(id, biomarker_id FK, panel_id FK?, taken_at, value_numeric?, value_text?, unit_ucum, ref_low?, ref_high?, ref_text?, interpretation?, notes?, created_at)`. `taken_at` is denormalized from `lab_panels.drawn_at` for fast time queries on standalone results. Indexed on `(biomarker_id, taken_at)`, `(taken_at)`, `(panel_id)`.
 
 See [Biomarkers](./BIOMARKERS.md) for the three-tier range model and `statusForResult` walk.
+
+## Clinical extensions
+
+Seven tables added by migration 0020 for clinical health tracking.
+
+### `blood_pressure_entries`
+`(id, ts, date, systolic, diastolic, pulse?, position?, arm?, notes?, created_at)`. `systolic` 40–300, `diastolic` 20–200, `pulse` 20–250. `position ∈ ('sitting','standing','lying')`, `arm ∈ ('left','right')`. Indexed on `(date)`, `(ts)`.
+
+### `dialysis_sessions`
+`(id, ts, date, modality, duration_min?, location?, access_type?, access_site?, access_notes?, pre_weight_kg?, post_weight_kg?, dry_weight_kg?, ultrafiltration_ml?, complications?, symptoms?, complication_notes?, notes?, created_at)`. `modality ∈ ('hemodialysis','peritoneal','hdf','hf','online_hdf')`. `access_type ∈ ('avf','avg','cvc','pd_catheter','other')`. `complications` and `symptoms` are JSON-encoded `string[]` (e.g. `["hypotension","cramp"]`). Supports full CRUD including `update_dialysis`.
+
+### `pain_entries`
+`(id, ts, date, score, location?, type?, duration_min?, triggers?, relief_methods?, notes?, created_at)`. `score` 0–10 (NRS). `type ∈ ('sharp','dull','aching','burning','throbbing','stabbing','tingling','other')`. `triggers` and `relief_methods` are JSON-encoded `string[]`.
+
+### `medications` + `medication_log`
+Two-table medication tracking: **prescriptions** (the drug master) and **log** (actual intake events).
+
+`medications(id, name, category?, dose_amount?, dose_unit?, frequency?, time_of_day?, start_date?, end_date?, prescriber?, indication?, notes?, active int default 1, created_at)`. `category ∈ ('prescription','otc','supplement','vitamin','mineral','herbal','other')`. `time_of_day` is JSON `string[]` (e.g. `["morning","evening"]`). `active` flag for soft-discontinuation without deletion.
+
+`medication_log(id, medication_id FK CASCADE, ts, date, dose_amount?, dose_unit?, taken int default 1, skipped int default 0, notes?, created_at)`. Each row is one dose event — either taken or skipped. `list_medication_log` supports filtering by `medication_id`, `date`, and time range.
+
+### `diary_entries`
+`(id, ts, date, mood?, energy?, sleep_quality?, appetite?, symptoms?, tags?, notes?, created_at)`. `mood`, `energy`, `sleep_quality`, `appetite` are 1–5 scales (1=很差, 5=很好). `symptoms` and `tags` are JSON-encoded `string[]`.
+
+### `fluid_output_entries`
+`(id, ts, date, kind, ml, notes?, created_at)`. `kind ∈ ('urine','sweat','vomit','drain','stool','other')`. `ml` must be > 0. Complements `hydration_entries` (intake) to enable fluid balance tracking.
 
 ## Wearables
 

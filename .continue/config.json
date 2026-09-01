@@ -1,0 +1,22 @@
+{
+  "models": [
+    {
+      "title": "Qwen2.5 Local (Bridge)",
+      "provider": "ollama",
+      "model": "qwen2.5-coder:7b",
+      "apiBase": "http://172.28.160.1:18080/v1"
+    },
+    {
+      "title": "DeepSeek R1 Local (Bridge)",
+      "provider": "ollama",
+      "model": "deepseek-r1:7b",
+      "apiBase": "http://172.28.160.1:18080/v1"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "Qwen2.5 Autocomplete",
+    "provider": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "apiBase": "http://172.28.160.1:18080/v1"
+  }
+}

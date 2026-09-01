@@ -27,7 +27,7 @@ const RecipeDetail = ({ id }: { id: string }) => {
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-3 rounded-md bg-kumo-fill p-4 text-xs">
           <div>
-            <div className="uppercase tracking-wide text-kumo-subtle">Total</div>
+            <div className="uppercase tracking-wide text-kumo-subtle">总计</div>
             <div className="mt-0.5 font-semibold tabular-nums">
               {fmtNum(total.kcal, 0)} kcal · P {fmtNum(total.protein_g, 1)} · C{' '}
               {fmtNum(total.carb_g, 1)} · F {fmtNum(total.fat_g, 1)}
@@ -35,7 +35,7 @@ const RecipeDetail = ({ id }: { id: string }) => {
           </div>
           <div>
             <div className="uppercase tracking-wide text-kumo-subtle">
-              Per serving ({recipe.servings})
+              每份 ({recipe.servings} 份)
             </div>
             <div className="mt-0.5 font-semibold tabular-nums">
               {fmtNum(per_serving.kcal, 0)} kcal · P {fmtNum(per_serving.protein_g, 1)} · C{' '}
@@ -48,7 +48,7 @@ const RecipeDetail = ({ id }: { id: string }) => {
             <li key={i.id} className="flex items-center justify-between gap-3 py-2 text-sm">
               <span className="truncate">
                 {i.food_name ?? i.free_text_name ?? (
-                  <span className="text-kumo-subtle italic">unnamed ingredient</span>
+                  <span className="text-kumo-subtle italic">未命名食材</span>
                 )}
               </span>
               <span className="shrink-0 text-xs tabular-nums text-kumo-subtle">
@@ -80,8 +80,8 @@ const Recipes = () => {
   return (
     <>
       <PageHeader
-        title="Recipes"
-        description="Reusable templates with scaled per-serving macros. Create via MCP for now."
+        title="食谱"
+        description="可复用的模板，按份自动计算宏量营养素。目前通过 MCP 创建。"
       />
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
         <div className="space-y-3">
@@ -90,8 +90,8 @@ const Recipes = () => {
               <Search className="h-4 w-4" aria-hidden="true" />
             </span>
             <Input
-              aria-label="Filter recipes"
-              placeholder="Filter recipes…"
+              aria-label="筛选食谱"
+              placeholder="筛选食谱…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-full pl-9"
@@ -102,8 +102,8 @@ const Recipes = () => {
           ) : !filtered.length ? (
             <Empty
               icon={ChefHat}
-              title={query.trim() ? 'No matches' : 'No recipes yet'}
-              description={query.trim() ? 'Try a different filter.' : undefined}
+              title={query.trim() ? '无匹配结果' : '暂无食谱'}
+              description={query.trim() ? '试试其他筛选条件。' : undefined}
             />
           ) : (
             <Card>
@@ -121,7 +121,7 @@ const Recipes = () => {
                       >
                         <span className="truncate">{r.name}</span>
                         <span className="ml-2 shrink-0 text-xs text-kumo-subtle">
-                          {r.servings} svg
+                          {r.servings} 份
                         </span>
                       </Button>
                     </li>
@@ -137,8 +137,8 @@ const Recipes = () => {
           ) : (
             <Empty
               icon={ChefHat}
-              title="Pick a recipe"
-              description="Click any recipe on the left to see its ingredients and macros."
+              title="选择一个食谱"
+              description="点击左侧任意食谱查看食材和宏量营养素。"
             />
           )}
         </div>

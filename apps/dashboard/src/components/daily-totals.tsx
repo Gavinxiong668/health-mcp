@@ -76,12 +76,12 @@ export const DailyTotals = ({ summary }: { summary: DailySummaryDto }) => {
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <CardTitle className="flex items-center gap-2">
           <Flame className="h-4 w-4 text-kumo-brand" aria-hidden="true" />
-          Daily totals
+          每日总计
         </CardTitle>
         <Badge variant="muted">
-          {fmtNum(totals.meal_count, 0)} {totals.meal_count === 1 ? 'meal' : 'meals'}
+          {fmtNum(totals.meal_count, 0)} 餐
           {totals.component_count > totals.meal_count ? (
-            <span className="text-kumo-subtle"> · {fmtNum(totals.component_count, 0)} items</span>
+            <span className="text-kumo-subtle"> · {fmtNum(totals.component_count, 0)} 项</span>
           ) : null}
         </Badge>
       </CardHeader>

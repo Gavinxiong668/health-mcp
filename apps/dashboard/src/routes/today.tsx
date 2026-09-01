@@ -78,9 +78,9 @@ const HydrationDialog = ({ renderTrigger, date }: HydrationDialogProps) => {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Droplets className="h-4 w-4 text-kumo-brand" />
-            Hydration
+            水分补充
           </DialogTitle>
-          <p className="text-xs text-kumo-subtle">{fmtNum(total)} ml logged today.</p>
+          <p className="text-xs text-kumo-subtle">今日已记录 {fmtNum(total)} ml。</p>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-2">
@@ -100,7 +100,7 @@ const HydrationDialog = ({ renderTrigger, date }: HydrationDialogProps) => {
             <Input
               type="number"
               inputMode="numeric"
-              placeholder="custom ml"
+              placeholder="自定义 ml"
               value={custom}
               onChange={(e) => setCustom(e.target.value)}
               onKeyDown={(e) => {
@@ -112,15 +112,15 @@ const HydrationDialog = ({ renderTrigger, date }: HydrationDialogProps) => {
               className="flex-1"
             />
             <Button size="sm" disabled={!custom || log.isPending} onClick={submitCustom}>
-              Add
+              添加
             </Button>
           </div>
           <div>
-            <SectionLabel className="mb-2">Today's pours</SectionLabel>
+            <SectionLabel className="mb-2">今日饮水记录</SectionLabel>
             {entries.isLoading ? (
               <Spinner />
             ) : today.length === 0 ? (
-              <p className="text-xs text-kumo-subtle">Nothing yet — tap a button above.</p>
+              <p className="text-xs text-kumo-subtle">还没有记录 — 点击上方按钮添加。</p>
             ) : (
               <ul className="max-h-48 divide-y divide-kumo-line overflow-y-auto">
                 {today.map((e) => (
@@ -132,7 +132,7 @@ const HydrationDialog = ({ renderTrigger, date }: HydrationDialogProps) => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label="Delete entry"
+                      aria-label="删除记录"
                       className="h-7 w-7"
                       disabled={remove.isPending}
                       onClick={() => remove.mutate(e.id)}
@@ -147,7 +147,7 @@ const HydrationDialog = ({ renderTrigger, date }: HydrationDialogProps) => {
         </div>
         <DialogFooter>
           <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-            Done
+            完成
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -228,7 +228,7 @@ const Today = () => {
     );
   }
   if (summary.isError || !summary.data) {
-    return <Empty title="No data" description={(summary.error as Error)?.message ?? 'unknown'} />;
+    return <Empty title="暂无数据" description={(summary.error as Error)?.message ?? '未知'} />;
   }
 
   const s = summary.data;
@@ -252,7 +252,7 @@ const Today = () => {
   return (
     <>
       <PageHeader
-        title="Today"
+        title="今日"
         description={
           <span className="flex items-center gap-2">
             <span>{formatDateLong(s.date)}</span>
@@ -268,19 +268,19 @@ const Today = () => {
             <div className="space-y-1">
               <CardTitle className="flex items-center gap-2">
                 <Flame className="h-4 w-4 text-kumo-brand" />
-                Macros vs goals
+                宏量营养素 vs 目标
               </CardTitle>
               <p className="text-xs text-kumo-subtle">
-                Live totals from today's intake — tap a ring to break it down.
+                今日摄入实时数据 — 点击环形图查看详情。
               </p>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="muted">
-                {fmtNum(s.totals.meal_count, 0)} {s.totals.meal_count === 1 ? 'meal' : 'meals'}
+                {fmtNum(s.totals.meal_count, 0)} {s.totals.meal_count === 1 ? '餐' : '餐'}
                 {s.totals.component_count > s.totals.meal_count ? (
                   <span className="text-kumo-subtle">
                     {' '}
-                    · {fmtNum(s.totals.component_count, 0)} items
+                    · {fmtNum(s.totals.component_count, 0)} 项
                   </span>
                 ) : null}
               </Badge>
@@ -289,7 +289,7 @@ const Today = () => {
                   <button
                     {...p}
                     type="button"
-                    aria-label="Edit rings"
+                    aria-label="编辑环形图"
                     className="grid h-8 w-8 place-items-center rounded-md text-kumo-subtle transition-colors hover:bg-kumo-elevated hover:text-kumo-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kumo-focus"
                   >
                     <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
@@ -307,34 +307,34 @@ const Today = () => {
           <StatCard
             icon={Moon}
             tone={sleepTone}
-            label="sleep score"
+            label="睡眠评分"
             value={sl?.score != null ? String(sl.score) : '—'}
-            hint={sl ? `${fmtNum((sl.duration_s ?? 0) / 3600, 1)} h asleep` : 'no data'}
+            hint={sl ? `睡眠 ${fmtNum((sl.duration_s ?? 0) / 3600, 1)} 小时` : '暂无数据'}
           />
           <StatCard
             icon={Heart}
             tone={recoveryTone}
-            label="recovery"
+            label="恢复"
             value={r?.score != null ? String(r.score) : '—'}
-            hint={r?.hrv_rmssd ? `HRV ${fmtNum(r.hrv_rmssd, 0)} ms` : 'no data'}
+            hint={r?.hrv_rmssd ? `HRV ${fmtNum(r.hrv_rmssd, 0)} ms` : '暂无数据'}
           />
           <StatCard
             icon={Scale}
-            label="weight"
+            label="体重"
             value={displayWeightKg != null ? `${fmtNum(displayWeightKg, 1)} kg` : '—'}
             hint={
               w?.body_fat_pct != null
-                ? `${fmtNum(w.body_fat_pct, 1)}% body fat`
+                ? `体脂率 ${fmtNum(w.body_fat_pct, 1)}%`
                 : w?.source === 'whoop' || (!w && whoopWeightKg != null)
-                  ? 'from Whoop'
-                  : 'no entry'
+                  ? '来自 Whoop'
+                  : '无记录'
             }
           />
           <Card className="transition-colors hover:bg-kumo-elevated">
             <div className="flex items-stretch justify-between gap-3 px-5 py-4">
               <div className="min-w-0 flex-1">
                 <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-kumo-subtle">
-                  hydration
+                  水分补充
                 </div>
                 <div className="mt-1.5 text-[26px] font-semibold leading-none tracking-tight tabular-nums text-kumo-strong">
                   {fmtNum(s.totals.hydration_ml)} ml
@@ -343,8 +343,8 @@ const Today = () => {
                   <div className="mt-1.5 flex flex-col gap-1 text-xs text-kumo-subtle">
                     <span>
                       {s.goals.hydration_ml.min != null
-                        ? `goal ≥ ${fmtNum(s.goals.hydration_ml.min)} ml`
-                        : `cap ≤ ${fmtNum(s.goals.hydration_ml.max ?? 0)} ml`}
+                        ? `目标 ≥ ${fmtNum(s.goals.hydration_ml.min)} ml`
+                        : `上限 ≤ ${fmtNum(s.goals.hydration_ml.max ?? 0)} ml`}
                     </span>
                     <ProgressBar
                       value={s.totals.hydration_ml}
@@ -353,7 +353,7 @@ const Today = () => {
                     />
                   </div>
                 ) : (
-                  <div className="mt-1.5 text-xs text-kumo-subtle">tap + to log a pour</div>
+                  <div className="mt-1.5 text-xs text-kumo-subtle">点击 + 记录饮水</div>
                 )}
               </div>
               <div className="flex shrink-0 flex-col items-end justify-between">
@@ -366,7 +366,7 @@ const Today = () => {
                     <button
                       {...p}
                       type="button"
-                      aria-label="Log hydration"
+                      aria-label="记录饮水"
                       className="grid h-8 w-8 place-items-center rounded-md bg-kumo-brand text-white shadow-sm shadow-kumo-brand/20 transition-[transform,box-shadow] hover:scale-105 hover:shadow-kumo-brand/40 focus-visible:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kumo-focus"
                     >
                       <Plus className="h-4 w-4" aria-hidden="true" />
@@ -381,9 +381,9 @@ const Today = () => {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between gap-3">
-              <CardTitle>Meals</CardTitle>
+              <CardTitle>餐食</CardTitle>
               <span className="text-xs text-kumo-subtle">
-                avg confidence{' '}
+                平均置信度{' '}
                 <span className="font-medium text-kumo-default">
                   {s.totals.avg_confidence === null ? '—' : fmtNum(s.totals.avg_confidence, 2)}
                 </span>
@@ -396,8 +396,8 @@ const Today = () => {
             ) : !meals.data?.length ? (
               <Empty
                 icon={Activity}
-                title="No meals logged today"
-                description="Ask your agent to log via MCP, or use Foods / Recipes to add manually."
+                title="今日暂无餐食记录"
+                description="通过 MCP 让智能体记录餐食，或使用食物/食谱页面手动添加。"
               />
             ) : (
               <ul className="-mx-2 divide-y divide-kumo-line">

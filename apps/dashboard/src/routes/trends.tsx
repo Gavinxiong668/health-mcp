@@ -81,10 +81,10 @@ const Trends = () => {
   return (
     <>
       <PageHeader
-        title="Trends"
+        title="趋势"
         description={
           <span>
-            Last <span className="font-medium text-kumo-default">{days}</span> days ·{' '}
+            最近 <span className="font-medium text-kumo-default">{days}</span> 天 ·{' '}
             <span className="font-mono text-xs">{start}</span> →{' '}
             <span className="font-mono text-xs">{end}</span>
           </span>
@@ -92,7 +92,7 @@ const Trends = () => {
         actions={<RangeToggle days={days} onChange={setDays} />}
       />
 
-      <SectionLabel>Nutrition</SectionLabel>
+      <SectionLabel>营养</SectionLabel>
       <div className="mt-3 grid gap-4 lg:grid-cols-2">
         {NUTRIENTS.map(({ key, digits }) => {
           const meta = MACRO_META[key];
@@ -110,25 +110,25 @@ const Trends = () => {
         })}
       </div>
 
-      <SectionLabel className="mt-8">Body &amp; recovery</SectionLabel>
+      <SectionLabel className="mt-8">身体 &amp; 恢复</SectionLabel>
       <div className="mt-3 grid gap-4 lg:grid-cols-2">
         <MetricChart
           id="weight"
-          title="weight"
+          title="体重"
           data={weights}
           color="var(--color-kumo-brand)"
           unit="kg"
         />
         <MetricChart
           id="recovery"
-          title="recovery"
+          title="恢复"
           data={recoveries}
           color="var(--color-kumo-success)"
           digits={0}
         />
         <MetricChart
           id="sleep"
-          title="sleep score"
+          title="睡眠评分"
           data={sleeps}
           color="var(--color-kumo-brand)"
           digits={0}

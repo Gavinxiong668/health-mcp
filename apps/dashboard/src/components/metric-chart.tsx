@@ -36,7 +36,7 @@ export const MetricChart = ({
         <div className="space-y-0.5">
           <CardTitle className="capitalize">{title}</CardTitle>
           <p className="text-xs text-kumo-subtle">
-            avg{' '}
+            平均{' '}
             <span className="font-medium tabular-nums text-kumo-default">
               {avg !== null ? `${fmtNum(avg, digits)}${unit ? ` ${unit}` : ''}` : '—'}
             </span>

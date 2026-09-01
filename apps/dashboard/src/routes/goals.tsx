@@ -43,39 +43,39 @@ type MacroSection = {
 
 const SECTIONS: MacroSection[] = [
   {
-    title: 'Energy',
+    title: '能量',
     icon: Flame,
-    fields: [{ key: 'kcal', label: 'Calories', unit: 'kcal', shape: 'range' }],
+    fields: [{ key: 'kcal', label: '热量', unit: 'kcal', shape: 'range' }],
   },
   {
-    title: 'Macros',
+    title: '宏量营养素',
     icon: Salad,
     fields: [
-      { key: 'protein_g', label: 'Protein', unit: 'g', shape: 'floor' },
-      { key: 'carb_g', label: 'Carbs', unit: 'g', shape: 'range' },
-      { key: 'fat_g', label: 'Fat', unit: 'g', shape: 'range' },
+      { key: 'protein_g', label: '蛋白质', unit: 'g', shape: 'floor' },
+      { key: 'carb_g', label: '碳水', unit: 'g', shape: 'range' },
+      { key: 'fat_g', label: '脂肪', unit: 'g', shape: 'range' },
       {
         key: 'sat_fat_g',
-        label: 'Saturated fat',
+        label: '饱和脂肪',
         unit: 'g',
         shape: 'cap',
-        hint: 'AHA recommends ≤ 13 g for a 2000 kcal diet.',
+        hint: 'AHA 建议 2000 kcal 饮食不超过 13 克。',
       },
-      { key: 'fiber_g', label: 'Fiber', unit: 'g', shape: 'floor' },
-      { key: 'sugar_g', label: 'Sugar', unit: 'g', shape: 'cap' },
+      { key: 'fiber_g', label: '纤维', unit: 'g', shape: 'floor' },
+      { key: 'sugar_g', label: '糖', unit: 'g', shape: 'cap' },
       {
         key: 'sodium_mg',
-        label: 'Sodium',
+        label: '钠',
         unit: 'mg',
         shape: 'cap',
-        hint: 'FDA daily limit is 2300 mg.',
+        hint: 'FDA 每日上限为 2300 毫克。',
       },
     ],
   },
   {
-    title: 'Hydration',
+    title: '水分补充',
     icon: Droplets,
-    fields: [{ key: 'hydration_ml', label: 'Water', unit: 'ml', shape: 'floor' }],
+    fields: [{ key: 'hydration_ml', label: '水', unit: 'ml', shape: 'floor' }],
   },
 ];
 
@@ -189,8 +189,8 @@ const Goals = () => {
   return (
     <>
       <PageHeader
-        title="Goals"
-        description="Daily targets — set a floor, a cap, or both per macro. Leave blank to clear."
+        title="目标"
+        description="每日目标 — 为每种宏量营养素设置下限、上限或两者。留空则清除。"
       />
 
       <Card className="t-panel-reveal">
@@ -208,10 +208,10 @@ const Goals = () => {
 
             <section>
               <SectionLabel icon={Scale} className="px-5 pb-3 pt-5">
-                Body
+                身体
               </SectionLabel>
               <FieldRow
-                label="Weight target"
+                label="体重目标"
                 unit="kg"
                 previewBound={
                   goals.data?.weight_kg_target != null
@@ -221,7 +221,7 @@ const Goals = () => {
               >
                 <SingleInput
                   id="weight_kg_target"
-                  ariaLabel="Weight target in kilograms"
+                  ariaLabel="体重目标（千克）"
                   step="0.1"
                   endAddon="kg"
                   value={form.weight_kg_target}
@@ -258,7 +258,7 @@ const Section = ({
         <FieldRow
           key={field.key}
           label={field.label}
-          unit={`${field.unit} / day`}
+          unit={`${field.unit} / 天`}
           hint={field.hint}
           previewBound={server ? formatBound(server[field.key], field.unit) : null}
         >
@@ -332,24 +332,24 @@ const BoundedInputs = ({
       {showMin ? (
         <BoundInput
           id={`${field.key}_min`}
-          ariaLabel={`${field.label} minimum in ${field.unit}`}
+          ariaLabel={`${field.label} 最小值（${field.unit}）`}
           addon="min"
           value={minValue}
           onChange={(v) => onChange(`${field.key}_min`, v)}
         />
       ) : (
-        <EmptySlot label={`No minimum for ${field.label}`} />
+        <EmptySlot label={`${field.label} 无最小值`} />
       )}
       {showMax ? (
         <BoundInput
           id={`${field.key}_max`}
-          ariaLabel={`${field.label} maximum in ${field.unit}`}
+          ariaLabel={`${field.label} 最大值（${field.unit}）`}
           addon="max"
           value={maxValue}
           onChange={(v) => onChange(`${field.key}_max`, v)}
         />
       ) : (
-        <EmptySlot label={`No maximum for ${field.label}`} />
+        <EmptySlot label={`${field.label} 无最大值`} />
       )}
     </>
   );
@@ -444,11 +444,11 @@ const SaveBar = ({
       {error ? (
         <span className="text-kumo-danger">{error}</span>
       ) : pending ? (
-        'Saving…'
+        '保存中…'
       ) : saved ? (
-        <span className="text-kumo-success">Goals updated.</span>
+        <span className="text-kumo-success">目标已更新。</span>
       ) : dirty ? (
-        'Unsaved changes.'
+        '有未保存的更改。'
       ) : (
         ' '
       )}
@@ -463,12 +463,12 @@ const SaveBar = ({
         {saved ? (
           <>
             <Check className="h-3.5 w-3.5" aria-hidden="true" />
-            <span>Saved</span>
+            <span>已保存</span>
           </>
         ) : pending ? (
-          <span>Saving…</span>
+          <span>保存中…</span>
         ) : (
-          <span>Save goals</span>
+          <span>保存目标</span>
         )}
       </span>
     </Button>

@@ -36,16 +36,16 @@ const Batches = () => {
   return (
     <>
       <PageHeader
-        title="Batches"
-        description="Cooked instances depleted as you log intake."
+        title="批次"
+        description="烹饪实例，随着摄入记录逐步消耗。"
         actions={
           <Tabs
             size="sm"
             value={tab}
             onValueChange={(v) => setTab(v as 'active' | 'all')}
             tabs={[
-              { value: 'active', label: 'Active' },
-              { value: 'all', label: 'All' },
+              { value: 'active', label: '进行中' },
+              { value: 'all', label: '全部' },
             ]}
           />
         }
@@ -55,8 +55,8 @@ const Batches = () => {
       ) : !list.data?.length ? (
         <Empty
           icon={CookingPot}
-          title="No batches"
-          description="Cook a recipe via MCP to start tracking depletion."
+          title="暂无批次"
+          description="通过 MCP 烹饪食谱开始跟踪消耗。"
         />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -68,11 +68,11 @@ const Batches = () => {
                 <CardContent className="space-y-3 p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="truncate font-medium">{b.name ?? 'Batch'}</div>
-                      <div className="text-xs text-kumo-subtle">cooked {fmtDate(b.cooked_at)}</div>
+                      <div className="truncate font-medium">{b.name ?? '批次'}</div>
+                      <div className="text-xs text-kumo-subtle">烹饪于 {fmtDate(b.cooked_at)}</div>
                     </div>
                     {b.archived ? (
-                      <Badge variant="muted">archived</Badge>
+                      <Badge variant="muted">已归档</Badge>
                     ) : (
                       <Badge variant={tone}>{Math.round(ratio * 100)}%</Badge>
                     )}
@@ -88,8 +88,8 @@ const Batches = () => {
                       />
                     </div>
                     <div className="flex justify-between text-xs tabular-nums text-kumo-subtle">
-                      <span>{fmtNum(b.remaining_grams, 0)} g left</span>
-                      <span>of {fmtNum(b.total_grams, 0)} g</span>
+                      <span>{fmtNum(b.remaining_grams, 0)} 克剩余</span>
+                      <span>共 {fmtNum(b.total_grams, 0)} 克</span>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs tabular-nums text-kumo-subtle">
@@ -111,14 +111,14 @@ const Batches = () => {
                         disabled={archive.isPending}
                         onClick={() => archive.mutate(b.id)}
                       >
-                        <Archive className="h-3.5 w-3.5" /> archive
+                        <Archive className="h-3.5 w-3.5" /> 归档
                       </Button>
                     ) : null}
                     <Button
                       variant="ghost"
                       size="sm"
                       shape="square"
-                      aria-label="Delete batch"
+                      aria-label="删除批次"
                       disabled={remove.isPending}
                       onClick={() => remove.mutate(b.id)}
                     >

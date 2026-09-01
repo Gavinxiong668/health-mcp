@@ -1,0 +1,157 @@
+{
+  "name": "每日健康摘要 (Daily Health Summary)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "trigger-schedule",
+      "name": "每日8点触发",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 计算昨日日期\nconst yesterday = new Date();\nyesterday.setDate(yesterday.getDate() - 1);\nconst dateStr = yesterday.toISOString().slice(0, 10);\n\n// 计算7天前日期\nconst weekAgo = new Date();\nweekAgo.setDate(weekAgo.getDate() - 7);\nconst weekAgoStr = weekAgo.toISOString().slice(0, 10);\n\nreturn [{ json: { date: dateStr, weekStart: weekAgoStr } }];"
+      },
+      "id": "code-dates",
+      "name": "计算日期范围",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:7777/api/report",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "start",
+              "value": "={{ $json.weekStart }}"
+            },
+            {
+              "name": "end",
+              "value": "={{ $json.date }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.HEALTH_MCP_TOKEN }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-report",
+      "name": "拉取健康报告数据",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 格式化报告数据为 Ollama 提示词\nconst report = $input.first().json;\nconst date = $('计算日期范围').first().json.date;\n\n// 营养摘要\nconst nutrition = report.nutrition?.avg || {};\nconst nutritionText = nutrition.kcal\n  ? `热量 ${nutrition.kcal}kcal, 蛋白质 ${nutrition.protein_g}g, 碳水 ${nutrition.carb_g}g, 脂肪 ${nutrition.fat_g}g, 钠 ${nutrition.sodium_mg}mg, 钾 ${nutrition.potassium_mg}mg`\n  : '暂无饮食数据';\n\n// 液体平衡\nconst fluid = report.fluid_balance || {};\nconst fluidText = `摄入 ${fluid.total_intake_ml || 0}ml, 排出 ${fluid.total_output_ml || 0}ml, 平衡 ${fluid.balance_ml || 0}ml`;\n\n// 血压\nconst bp = report.blood_pressure || {};\nconst bpStats = bp.stats;\nconst bpEntries = bp.entries || [];\nconst bpText = bpStats\n  ? `平均 ${bpStats.avg_systolic}/${bpStats.avg_diastolic} mmHg, 脉搏 ${bpStats.avg_pulse}bpm, ${bpStats.count}次记录\\n最近读数: ${bpEntries.slice(0, 3).map(e => `${e.systolic}/${e.diastolic}`).join(', ')}`\n  : '暂无血压数据';\n\n// 透析\nconst dialysis = report.dialysis || {};\nconst dialysisStats = dialysis.stats;\nconst dialysisEntries = dialysis.entries || [];\nconst dialysisText = dialysisStats\n  ? `${dialysisStats.count}次透析, 平均${dialysisStats.avg_duration_min}分钟, 总超滤${dialysisStats.total_uf_ml}ml\\n最近: ${dialysisEntries.slice(0, 2).map(e => `${e.date} ${e.modality} ${e.duration_min || '?'}min UF:${e.ultrafiltration_ml || '?'}ml`).join('; ')}`\n  : '暂无透析数据';\n\n// 疼痛\nconst pain = report.pain || {};\nconst painStats = pain.stats;\nconst painText = painStats\n  ? `平均${painStats.avg_score}分, 最高${painStats.max_score}分, 最低${painStats.min_score}分, ${painStats.count}次记录`\n  : '暂无疼痛数据';\n\n// 用药\nconst meds = report.medications || [];\nconst medsText = meds.length > 0\n  ? meds.map(m => `${m.name} ${m.dose_amount || ''}${m.dose_unit || ''} ${m.frequency || ''} (${m.indication || m.category || ''})`).join('; ')\n  : '暂无用药';\n\n// 日记\nconst diary = report.diary || {};\nconst diaryStats = diary.stats;\nconst diaryText = diaryStats\n  ? `心情 ${diaryStats.avg_mood}/5, 精力 ${diaryStats.avg_energy}/5, 睡眠 ${diaryStats.avg_sleep}/5`\n  : '暂无日记数据';\n\n// 体重\nconst weight = report.weight || [];\nconst weightText = weight.length > 0\n  ? `最近体重: ${weight[0].kg}kg (${weight[0].date})`\n  : '暂无体重数据';\n\n// 化验\nconst labs = report.lab_results || [];\nconst labsText = labs.length > 0\n  ? labs.slice(0, 5).map(lr => `${lr.biomarker_name}: ${lr.value_numeric ?? lr.value_text} ${lr.unit_ucum}`).join('; ')\n  : '暂无化验数据';\n\n// 构建提示词\nconst prompt = `你是一位专业的肾内科健康顾问。请根据以下患者过去7天的健康数据，生成一份简洁的每日健康摘要报告（中文）。\n\n## 数据（截至 ${date}）\n\n### 营养摄入（日均）\n${nutritionText}\n\n### 液体平衡\n${fluidText}\n\n### 血压\n${bpText}\n\n### 透析\n${dialysisText}\n\n### 疼痛\n${painText}\n\n### 当前用药\n${medsText}\n\n### 情绪/症状日记\n${diaryText}\n\n### 体重\n${weightText}\n\n### 最近化验\n${labsText}\n\n## 请生成以下内容的报告：\n\n1. **血压趋势分析**：评估血压控制情况，是否有异常波动\n2. **透析反应评估**：如有透析数据，分析超滤是否充分，有无并发症风险\n3. **饮食建议**：基于营养数据和肾病饮食原则（低磷低钾低钠优质低蛋白），给出具体建议\n4. **异常提醒**：标注任何需要关注的异常指标\n5. **今日建议**：1-2条简短的行动建议\n\n请保持报告简洁，总字数控制在300字以内。`;\n\nreturn [{ json: { prompt, date } }];"
+      },
+      "id": "code-format",
+      "name": "格式化数据为提示词",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"qwen2.5:7b\",\n  \"prompt\": {{ JSON.stringify($json.prompt) }},\n  \"stream\": false\n}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "http-ollama",
+      "name": "调用 Ollama 生成摘要",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 提取 Ollama 生成的摘要文本\nconst ollamaResponse = $input.first().json;\nconst summary = ollamaResponse.response || '生成失败';\nconst date = $('格式化数据为提示词').first().json.date;\n\n// 构建钉钉消息\nconst markdown = {\n  title: `每日健康摘要 (${date})`,\n  text: `## 每日健康摘要\\n**${date}**\\n\\n${summary}\\n\\n---\\n*由 health-mcp + Ollama 自动生成*`\n};\n\nreturn [{ json: { markdown } }];"
+      },
+      "id": "code-dingtalk-format",
+      "name": "格式化钉钉消息",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DINGTALK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"msgtype\": \"markdown\",\n  \"markdown\": {{ JSON.stringify($json.markdown) }}\n}",
+        "options": {}
+      },
+      "id": "http-dingtalk",
+      "name": "推送至钉钉",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 0]
+    }
+  ],
+  "connections": {
+    "每日8点触发": {
+      "main": [
+        [{ "node": "计算日期范围", "type": "main", "index": 0 }]
+      ]
+    },
+    "计算日期范围": {
+      "main": [
+        [{ "node": "拉取健康报告数据", "type": "main", "index": 0 }]
+      ]
+    },
+    "拉取健康报告数据": {
+      "main": [
+        [{ "node": "格式化数据为提示词", "type": "main", "index": 0 }]
+      ]
+    },
+    "格式化数据为提示词": {
+      "main": [
+        [{ "node": "调用 Ollama 生成摘要", "type": "main", "index": 0 }]
+      ]
+    },
+    "调用 Ollama 生成摘要": {
+      "main": [
+        [{ "node": "格式化钉钉消息", "type": "main", "index": 0 }]
+      ]
+    },
+    "格式化钉钉消息": {
+      "main": [
+        [{ "node": "推送至钉钉", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "health-mcp" },
+    { "name": "daily-report" }
+  ]
+}

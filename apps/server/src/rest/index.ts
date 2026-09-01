@@ -2,6 +2,11 @@ import type { MealComponentInput, MealType } from '@health-mcp/shared';
 import type { Context, Hono } from 'hono';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import {
+  deleteBloodPressure,
+  listBloodPressure,
+  logBloodPressure,
+} from '../services/blood-pressure.js';
+import {
   biomarkerTrend,
   createCustomBiomarker,
   deleteLabPanel,
@@ -19,6 +24,19 @@ import {
 } from '../services/biomarkers.js';
 import { correlate, listCorrelateMetrics } from '../services/correlate.js';
 import {
+  deleteDialysis,
+  getDialysis,
+  listDialysis,
+  logDialysis,
+  updateDialysis,
+} from '../services/dialysis.js';
+import { deleteDiary, listDiary, logDiary } from '../services/diary.js';
+import {
+  deleteFluidOutput,
+  listFluidOutput,
+  logFluidOutput,
+} from '../services/fluid-output.js';
+import {
   bulkUpsertCustomFoods,
   createCustomFood,
   deleteCustomFood,
@@ -28,6 +46,7 @@ import {
   searchFood,
   updateCustomFood,
 } from '../services/food.js';
+import { generateHealthReport } from '../services/health-report.js';
 import { getGoals, setGoals } from '../services/goals.js';
 import {
   addMealComponent,
@@ -40,6 +59,16 @@ import {
   updateMeal,
   updateMealComponent,
 } from '../services/meals.js';
+import {
+  createMedication,
+  deleteMedication,
+  getMedication,
+  listMedicationLog,
+  listMedications,
+  logMedicationDose,
+  updateMedication,
+} from '../services/medications.js';
+import { deletePain, listPain, logPain } from '../services/pain.js';
 import {
   archiveBatch,
   createBatch,
@@ -434,6 +463,127 @@ export const mountRestRoutes = (app: Hono, ctx: WearableServiceCtx): void => {
     ),
   );
   app.get('/api/whoop/body', (c) => wrap(c, () => whoopBodyMeasurement(ctx)));
+
+  // Blood pressure
+  app.get('/api/blood-pressure', (c) =>
+    wrap(c, () =>
+      listBloodPressure(ctx, {
+        date: c.req.query('date'),
+        start: c.req.query('start'),
+        end: c.req.query('end'),
+        limit: intParam(c.req.query('limit')),
+      }),
+    ),
+  );
+  app.post('/api/blood-pressure', (c) =>
+    wrap(c, async () => logBloodPressure(ctx, await parseBody(c))),
+  );
+  app.delete('/api/blood-pressure/:id', (c) =>
+    wrap(c, () => deleteBloodPressure(ctx, c.req.param('id'))),
+  );
+
+  // Dialysis
+  app.get('/api/dialysis', (c) =>
+    wrap(c, () =>
+      listDialysis(ctx, {
+        date: c.req.query('date'),
+        start: c.req.query('start'),
+        end: c.req.query('end'),
+        limit: intParam(c.req.query('limit')),
+      }),
+    ),
+  );
+  app.post('/api/dialysis', (c) => wrap(c, async () => logDialysis(ctx, await parseBody(c))));
+  app.get('/api/dialysis/:id', (c) => wrap(c, () => getDialysis(ctx, c.req.param('id'))));
+  app.patch('/api/dialysis/:id', (c) =>
+    wrap(c, async () => updateDialysis(ctx, { id: c.req.param('id'), ...(await mergeBody(c)) })),
+  );
+  app.delete('/api/dialysis/:id', (c) => wrap(c, () => deleteDialysis(ctx, c.req.param('id'))));
+
+  // Pain
+  app.get('/api/pain', (c) =>
+    wrap(c, () =>
+      listPain(ctx, {
+        date: c.req.query('date'),
+        start: c.req.query('start'),
+        end: c.req.query('end'),
+        limit: intParam(c.req.query('limit')),
+      }),
+    ),
+  );
+  app.post('/api/pain', (c) => wrap(c, async () => logPain(ctx, await parseBody(c))));
+  app.delete('/api/pain/:id', (c) => wrap(c, () => deletePain(ctx, c.req.param('id'))));
+
+  // Medications
+  app.get('/api/medications', (c) =>
+    wrap(c, () => listMedications(ctx, { active_only: c.req.query('active_only') === 'true' })),
+  );
+  app.post('/api/medications', (c) =>
+    wrap(c, async () => createMedication(ctx, await parseBody(c))),
+  );
+  app.get('/api/medications/:id', (c) => wrap(c, () => getMedication(ctx, c.req.param('id'))));
+  app.patch('/api/medications/:id', (c) =>
+    wrap(c, async () => updateMedication(ctx, { id: c.req.param('id'), ...(await mergeBody(c)) })),
+  );
+  app.delete('/api/medications/:id', (c) =>
+    wrap(c, () => deleteMedication(ctx, c.req.param('id'))),
+  );
+  app.post('/api/medications/:id/log', (c) =>
+    wrap(c, async () => logMedicationDose(ctx, { ...(await parseBody(c)), medication_id: c.req.param('id') })),
+  );
+  app.get('/api/medication-log', (c) =>
+    wrap(c, () =>
+      listMedicationLog(ctx, {
+        medication_id: c.req.query('medication_id'),
+        date: c.req.query('date'),
+        start: c.req.query('start'),
+        end: c.req.query('end'),
+        limit: intParam(c.req.query('limit')),
+      }),
+    ),
+  );
+
+  // Diary
+  app.get('/api/diary', (c) =>
+    wrap(c, () =>
+      listDiary(ctx, {
+        date: c.req.query('date'),
+        start: c.req.query('start'),
+        end: c.req.query('end'),
+        limit: intParam(c.req.query('limit')),
+      }),
+    ),
+  );
+  app.post('/api/diary', (c) => wrap(c, async () => logDiary(ctx, await parseBody(c))));
+  app.delete('/api/diary/:id', (c) => wrap(c, () => deleteDiary(ctx, c.req.param('id'))));
+
+  // Fluid output
+  app.get('/api/fluid-output', (c) =>
+    wrap(c, () =>
+      listFluidOutput(ctx, {
+        date: c.req.query('date'),
+        start: c.req.query('start'),
+        end: c.req.query('end'),
+        limit: intParam(c.req.query('limit')),
+      }),
+    ),
+  );
+  app.post('/api/fluid-output', (c) =>
+    wrap(c, async () => logFluidOutput(ctx, await parseBody(c))),
+  );
+  app.delete('/api/fluid-output/:id', (c) =>
+    wrap(c, () => deleteFluidOutput(ctx, c.req.param('id'))),
+  );
+
+  // Health report
+  app.get('/api/report', (c) =>
+    wrap(c, () =>
+      generateHealthReport(ctx, {
+        start: c.req.query('start') ?? '',
+        end: c.req.query('end') ?? '',
+      }),
+    ),
+  );
 
   // OAuth callback — unauthenticated by design (third-party redirect).
   app.get('/auth/wearable/callback', async (c) => {

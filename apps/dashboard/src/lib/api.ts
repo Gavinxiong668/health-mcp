@@ -3,8 +3,12 @@ import type {
   BatchDto,
   BiomarkerDto,
   BiomarkerTrendPointDto,
+  BloodPressureEntryDto,
   CustomFoodInput,
   DailySummaryDto,
+  DiaryEntryDto,
+  DialysisSessionDto,
+  FluidOutputEntryDto,
   FoodDto,
   FoodSearchHitDto,
   GoalsDto,
@@ -18,6 +22,9 @@ import type {
   MealComponentInput,
   MealDto,
   MeasurementDto,
+  MedicationDto,
+  MedicationLogEntryDto,
+  PainEntryDto,
   RangeSummaryDto,
   RecipeDto,
   RecipeWithIngredientsDto,
@@ -282,4 +289,59 @@ export const api = {
       get<WearableDailyDto[]>(`/api/wearables/daily${qs(params)}`),
     whoopBody: () => get<WhoopBodyDto | null>('/api/whoop/body'),
   },
+
+  bloodPressure: {
+    list: (params: { date?: string; start?: string; end?: string; limit?: number } = {}) =>
+      get<BloodPressureEntryDto[]>(`/api/blood-pressure${qs(params)}`),
+    log: (body: { systolic: number; diastolic: number; pulse?: number; position?: string; arm?: string; ts?: string; notes?: string }) =>
+      post<BloodPressureEntryDto>('/api/blood-pressure', body),
+    delete: (id: string) => del<{ id: string }>(`/api/blood-pressure/${encodeURIComponent(id)}`),
+  },
+
+  dialysis: {
+    list: (params: { date?: string; start?: string; end?: string; limit?: number } = {}) =>
+      get<DialysisSessionDto[]>(`/api/dialysis${qs(params)}`),
+    get: (id: string) => get<DialysisSessionDto>(`/api/dialysis/${encodeURIComponent(id)}`),
+    log: (body: unknown) => post<DialysisSessionDto>('/api/dialysis', body),
+    update: (id: string, body: unknown) => patch<DialysisSessionDto>(`/api/dialysis/${encodeURIComponent(id)}`, body),
+    delete: (id: string) => del<{ id: string }>(`/api/dialysis/${encodeURIComponent(id)}`),
+  },
+
+  pain: {
+    list: (params: { date?: string; start?: string; end?: string; limit?: number } = {}) =>
+      get<PainEntryDto[]>(`/api/pain${qs(params)}`),
+    log: (body: { score: number; location?: string; type?: string; duration_min?: number; triggers?: string[]; relief_methods?: string[]; ts?: string; notes?: string }) =>
+      post<PainEntryDto>('/api/pain', body),
+    delete: (id: string) => del<{ id: string }>(`/api/pain/${encodeURIComponent(id)}`),
+  },
+
+  medications: {
+    list: (params: { active_only?: boolean } = {}) =>
+      get<MedicationDto[]>(`/api/medications${qs({ active_only: params.active_only ? 'true' : undefined })}`),
+    get: (id: string) => get<MedicationDto>(`/api/medications/${encodeURIComponent(id)}`),
+    create: (body: unknown) => post<MedicationDto>('/api/medications', body),
+    update: (id: string, body: unknown) => patch<MedicationDto>(`/api/medications/${encodeURIComponent(id)}`, body),
+    delete: (id: string) => del<{ id: string }>(`/api/medications/${encodeURIComponent(id)}`),
+    logDose: (id: string, body: unknown) => post<MedicationLogEntryDto>(`/api/medications/${encodeURIComponent(id)}/log`, body),
+    log: (params: { medication_id?: string; date?: string; start?: string; end?: string; limit?: number } = {}) =>
+      get<MedicationLogEntryDto[]>(`/api/medication-log${qs(params)}`),
+  },
+
+  diary: {
+    list: (params: { date?: string; start?: string; end?: string; limit?: number } = {}) =>
+      get<DiaryEntryDto[]>(`/api/diary${qs(params)}`),
+    log: (body: unknown) => post<DiaryEntryDto>('/api/diary', body),
+    delete: (id: string) => del<{ id: string }>(`/api/diary/${encodeURIComponent(id)}`),
+  },
+
+  fluidOutput: {
+    list: (params: { date?: string; start?: string; end?: string; limit?: number } = {}) =>
+      get<FluidOutputEntryDto[]>(`/api/fluid-output${qs(params)}`),
+    log: (body: { kind: string; ml: number; ts?: string; notes?: string }) =>
+      post<FluidOutputEntryDto>('/api/fluid-output', body),
+    delete: (id: string) => del<{ id: string }>(`/api/fluid-output/${encodeURIComponent(id)}`),
+  },
+
+  report: (params: { start: string; end: string }) =>
+    request<Record<string, unknown>>('GET', `/api/report${qs(params)}`),
 };

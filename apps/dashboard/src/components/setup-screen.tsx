@@ -46,7 +46,7 @@ export const SetupScreen = ({ reason }: { reason: 'missing' | '401' }) => {
   const [reveal, setReveal] = useState(false);
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState<string | null>(
-    reason === '401' ? 'That token was rejected. Paste a valid one to continue.' : null,
+    reason === '401' ? '该令牌已被拒绝。请粘贴有效的令牌继续。' : null,
   );
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -78,8 +78,8 @@ export const SetupScreen = ({ reason }: { reason: 'missing' | '401' }) => {
     setStatus('error');
     setError(
       result === 'rejected'
-        ? 'That token was rejected. Double-check it and try again.'
-        : 'Couldn’t reach the server. Is health-mcp running?',
+        ? '该令牌已被拒绝。请仔细检查后重试。'
+        : '无法连接到服务器。health-mcp 是否在运行？',
     );
     shake();
     inputRef.current?.focus();
@@ -112,7 +112,7 @@ export const SetupScreen = ({ reason }: { reason: 'missing' | '401' }) => {
             <h1 className="mt-6 text-balance text-2xl font-semibold tracking-tight text-kumo-strong">
               <span translate="no">health-mcp</span>
             </h1>
-            <p className="mt-2 text-sm text-kumo-subtle">your data, your model</p>
+            <p className="mt-2 text-sm text-kumo-subtle">你的数据，你的模型</p>
           </div>
 
           <Card className="t-panel-reveal mt-9" style={{ animationDelay: '90ms' }}>
@@ -122,41 +122,41 @@ export const SetupScreen = ({ reason }: { reason: 'missing' | '401' }) => {
                   <KeyRound className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <h2 className="mt-4 text-balance text-lg font-semibold tracking-tight text-kumo-strong">
-                  Unlock your dashboard
+                  解锁仪表盘
                 </h2>
                 <p className="mt-1.5 text-pretty text-sm text-kumo-subtle">
-                  Paste your access token to open your private health data.
+                  粘贴您的访问令牌以打开您的私人健康数据。
                 </p>
               </div>
 
               <form onSubmit={handleSubmit} className="mt-7 space-y-2.5" noValidate>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="token">Access token</Label>
+                  <Label htmlFor="token">访问令牌</Label>
                   <Popover>
                     <Popover.Trigger
                       render={
                         <button
                           type="button"
-                          aria-label="Where to find your token"
+                          aria-label="在哪里找到您的令牌"
                           className="inline-flex items-center gap-1 rounded text-xs text-kumo-subtle outline-none transition-colors hover:text-kumo-default focus-visible:ring-2 focus-visible:ring-kumo-focus"
                         >
                           <HelpCircle className="h-3.5 w-3.5" aria-hidden="true" />
-                          Where to find it
+                          在哪里找到
                         </button>
                       }
                     />
                     <Popover.Content side="bottom" className="max-w-[260px]">
-                      <Popover.Title>Where to find your token</Popover.Title>
+                      <Popover.Title>在哪里找到您的令牌</Popover.Title>
                       <Popover.Description>
-                        It’s the value you set as{' '}
+                        这是您在启动服务器时设置的{' '}
                         <code className="rounded bg-kumo-control px-1 py-0.5 font-mono text-xs">
                           HEALTH_MCP_TOKEN
                         </code>{' '}
-                        when starting the server — check your terminal logs or{' '}
+                        值 — 请检查您的终端日志或{' '}
                         <code className="rounded bg-kumo-control px-1 py-0.5 font-mono text-xs">
                           .env
                         </code>{' '}
-                        file.
+                        文件。
                       </Popover.Description>
                     </Popover.Content>
                   </Popover>
@@ -177,7 +177,7 @@ export const SetupScreen = ({ reason }: { reason: 'missing' | '401' }) => {
                       setValue(e.target.value);
                       if (status === 'error') setStatus('idle');
                     }}
-                    placeholder="Paste your token…"
+                    placeholder="粘贴您的令牌…"
                     className="w-full pr-10 font-mono"
                     aria-invalid={status === 'error'}
                     aria-describedby={error ? 'token-error' : undefined}
@@ -185,7 +185,7 @@ export const SetupScreen = ({ reason }: { reason: 'missing' | '401' }) => {
                   <button
                     type="button"
                     onClick={() => setReveal((r) => !r)}
-                    aria-label={reveal ? 'Hide token' : 'Show token'}
+                    aria-label={reveal ? '隐藏令牌' : '显示令牌'}
                     aria-pressed={reveal}
                     className="absolute inset-y-0 right-0 grid w-10 place-items-center rounded-r-md text-kumo-subtle outline-none transition-colors hover:text-kumo-default focus-visible:ring-2 focus-visible:ring-kumo-focus"
                   >
@@ -213,16 +213,16 @@ export const SetupScreen = ({ reason }: { reason: 'missing' | '401' }) => {
                     {status === 'checking' ? (
                       <>
                         <Spinner className="h-4 w-4" />
-                        Checking…
+                        检查中…
                       </>
                     ) : status === 'success' ? (
                       <>
                         <SuccessCheck />
-                        Unlocked
+                        已解锁
                       </>
                     ) : (
                       <>
-                        Unlock dashboard
+                        解锁仪表盘
                         <ArrowRight className="h-4 w-4" aria-hidden="true" />
                       </>
                     )}
@@ -230,9 +230,9 @@ export const SetupScreen = ({ reason }: { reason: 'missing' | '401' }) => {
                 </Button>
                 <output className="sr-only" aria-live="polite">
                   {status === 'checking'
-                    ? 'Checking token'
+                    ? '正在检查令牌'
                     : status === 'success'
-                      ? 'Unlocked'
+                      ? '已解锁'
                       : ''}
                 </output>
               </form>
@@ -240,14 +240,14 @@ export const SetupScreen = ({ reason }: { reason: 'missing' | '401' }) => {
               <div className="mt-7 flex justify-center border-t border-kumo-line pt-5">
                 <Tooltip
                   side="bottom"
-                  content="Saved only in this browser’s localStorage, and only ever sent to your own server. No account, no cloud."
+                  content="仅保存在此浏览器的 localStorage 中，且仅发送到您自己的服务器。无账户，无云服务。"
                   render={
                     <button
                       type="button"
                       className="inline-flex items-center gap-1.5 rounded text-xs text-kumo-subtle outline-none transition-colors hover:text-kumo-default focus-visible:ring-2 focus-visible:ring-kumo-focus"
                     >
                       <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                      Private to this browser
+                      对此浏览器私密
                     </button>
                   }
                 />
@@ -256,7 +256,7 @@ export const SetupScreen = ({ reason }: { reason: 'missing' | '401' }) => {
           </Card>
 
           <p className="mt-6 text-center text-xs text-kumo-subtle">
-            No account needed · runs entirely on your machine
+            无需账户 · 完全在您的设备上运行
           </p>
         </div>
       </main>

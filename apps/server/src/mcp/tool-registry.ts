@@ -16,6 +16,12 @@ export type ToolGroup =
   | 'lab'
   | 'wearable'
   | 'whoop'
+  | 'blood_pressure'
+  | 'dialysis'
+  | 'pain'
+  | 'medication'
+  | 'diary'
+  | 'fluid_output'
   | 'discovery'
   | 'system';
 

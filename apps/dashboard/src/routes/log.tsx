@@ -43,8 +43,8 @@ const Log = () => {
   return (
     <>
       <PageHeader
-        title="Log"
-        description="Review daily totals and meals for any date."
+        title="日志"
+        description="查看任意日期的每日总计和餐食记录。"
         actions={<DateNav date={date} onChange={setDate} />}
       />
 
@@ -61,8 +61,8 @@ const Log = () => {
           <Card>
             <CardContent className="py-8">
               <Empty
-                title="Couldn't load totals"
-                description={(summary.error as Error)?.message ?? 'unknown error'}
+                title="无法加载总计"
+                description={(summary.error as Error)?.message ?? '未知错误'}
               />
             </CardContent>
           </Card>
@@ -76,7 +76,7 @@ const Log = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Meals</CardTitle>
+            <CardTitle>餐食</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             {meals.isLoading ? (
@@ -86,11 +86,11 @@ const Log = () => {
             ) : meals.isError ? (
               <Empty
                 icon={History}
-                title="Couldn't load meals"
-                description={(meals.error as Error)?.message ?? 'unknown error'}
+                title="无法加载餐食"
+                description={(meals.error as Error)?.message ?? '未知错误'}
               />
             ) : !meals.data?.length ? (
-              <Empty icon={History} title="No meals" description="Nothing logged on this day." />
+              <Empty icon={History} title="暂无餐食" description="当天没有记录。" />
             ) : (
               <ul className="-mx-2 divide-y divide-kumo-line">
                 {meals.data.map((m) => (

@@ -116,42 +116,42 @@ const CreateCustomFood = ({ onCreated }: { onCreated: () => void }) => {
       <DialogTrigger
         render={(p) => (
           <Button {...p} icon={<Plus className="h-4 w-4" aria-hidden="true" />}>
-            New custom food
+            新建自定义食物
           </Button>
         )}
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create custom food</DialogTitle>
+          <DialogTitle>创建自定义食物</DialogTitle>
         </DialogHeader>
         <form id="food-form" onSubmit={submit} className="grid grid-cols-2 gap-4">
-          <div className="col-span-2">{renderField('name', 'Name', 'text')}</div>
-          <div className="col-span-2 sm:col-span-1">{renderField('brand', 'Brand', 'text')}</div>
+          <div className="col-span-2">{renderField('name', '名称', 'text')}</div>
+          <div className="col-span-2 sm:col-span-1">{renderField('brand', '品牌', 'text')}</div>
           <div className="col-span-2 sm:col-span-1">
-            {renderField('serving_grams', 'Serving (g)')}
+            {renderField('serving_grams', '每份（克）')}
           </div>
           <div className="col-span-2 mt-1 border-t border-kumo-line pt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-kumo-subtle">
-            Per 100 g
+            每 100 克
           </div>
-          {renderField('kcal_per_100g', 'Calories')}
-          {renderField('protein_g_per_100g', 'Protein (g)')}
-          {renderField('carb_g_per_100g', 'Carbs (g)')}
-          {renderField('fat_g_per_100g', 'Fat (g)')}
-          {renderField('sat_fat_g_per_100g', 'Saturated fat (g)')}
-          {renderField('fiber_g_per_100g', 'Fiber (g)')}
-          {renderField('sugar_g_per_100g', 'Sugar (g)')}
-          {renderField('sodium_mg_per_100g', 'Sodium (mg)')}
-          {renderField('potassium_mg_per_100g', 'Potassium (mg)')}
-          {renderField('calcium_mg_per_100g', 'Calcium (mg)')}
-          {renderField('magnesium_mg_per_100g', 'Magnesium (mg)')}
-          {renderField('iron_mg_per_100g', 'Iron (mg)')}
+          {renderField('kcal_per_100g', '热量')}
+          {renderField('protein_g_per_100g', '蛋白质（克）')}
+          {renderField('carb_g_per_100g', '碳水（克）')}
+          {renderField('fat_g_per_100g', '脂肪（克）')}
+          {renderField('sat_fat_g_per_100g', '饱和脂肪（克）')}
+          {renderField('fiber_g_per_100g', '纤维（克）')}
+          {renderField('sugar_g_per_100g', '糖（克）')}
+          {renderField('sodium_mg_per_100g', '钠（毫克）')}
+          {renderField('potassium_mg_per_100g', '钾（毫克）')}
+          {renderField('calcium_mg_per_100g', '钙（毫克）')}
+          {renderField('magnesium_mg_per_100g', '镁（毫克）')}
+          {renderField('iron_mg_per_100g', '铁（毫克）')}
         </form>
         <DialogFooter>
           <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-            Cancel
+            取消
           </Button>
           <Button type="submit" form="food-form" disabled={create.isPending}>
-            Create
+            创建
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -178,8 +178,8 @@ const Foods = () => {
   return (
     <>
       <PageHeader
-        title="Foods"
-        description="Search local cache, USDA, and Open Food Facts; create custom foods."
+        title="食物"
+        description="搜索本地缓存、USDA 和 Open Food Facts；创建自定义食物。"
         actions={
           <CreateCustomFood onCreated={() => qc.invalidateQueries({ queryKey: ['foods'] })} />
         }
@@ -201,8 +201,8 @@ const Foods = () => {
                 <Search className="h-4 w-4" />
               </span>
               <Input
-                aria-label="Search foods"
-                placeholder="Search foods…"
+                aria-label="搜索食物"
+                placeholder="搜索食物…"
                 autoComplete="off"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -210,25 +210,25 @@ const Foods = () => {
               />
             </div>
             <Button type="submit" className="shrink-0">
-              Search
+              搜索
             </Button>
           </form>
         </CardContent>
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>{active ? `Results for "${active}"` : 'Search to see results'}</CardTitle>
+          <CardTitle>{active ? `“${active}”的搜索结果` : '搜索查看结果'}</CardTitle>
         </CardHeader>
         <CardContent>
           {!active ? (
-            <Empty icon={Salad} title="Start typing to search foods" />
+            <Empty icon={Salad} title="开始输入搜索食物" />
           ) : search.isLoading ? (
             <Spinner />
           ) : !search.data?.length ? (
             <Empty
               icon={Salad}
-              title="No matches"
-              description="Try a different query or create a custom food."
+              title="无匹配结果"
+              description="试试其他关键词或创建自定义食物。"
             />
           ) : (
             <ul className="divide-y divide-kumo-line">
@@ -255,7 +255,7 @@ const Foods = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label="Delete custom food"
+                      aria-label="删除自定义食物"
                       disabled={remove.isPending}
                       onClick={() => remove.mutate(f.id)}
                     >

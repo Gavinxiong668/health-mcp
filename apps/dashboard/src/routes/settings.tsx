@@ -56,17 +56,17 @@ const TokenSection = () => {
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2">
-            <Key className="h-4 w-4" /> Bearer token
+            <Key className="h-4 w-4" /> 访问令牌
           </CardTitle>
           <Badge variant={hasSaved ? 'ok' : 'outline'} className="capitalize">
-            {hasSaved ? 'saved' : 'not set'}
+            {hasSaved ? '已保存' : '未设置'}
           </Badge>
         </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={submit} className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="token">Token</Label>
+            <Label htmlFor="token">令牌</Label>
             <div className="flex items-stretch gap-2">
               <div className="relative flex-1">
                 <Input
@@ -74,14 +74,14 @@ const TokenSection = () => {
                   type={reveal ? 'text' : 'password'}
                   autoComplete="off"
                   spellCheck={false}
-                  placeholder={hasSaved ? '••••••••' : 'paste your HEALTH_MCP_TOKEN'}
+                  placeholder={hasSaved ? '••••••••' : '粘贴你的 HEALTH_MCP_TOKEN'}
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
                   className="w-full pr-9"
                 />
                 <button
                   type="button"
-                  aria-label={reveal ? 'Hide token' : 'Show token'}
+                  aria-label={reveal ? '隐藏令牌' : '显示令牌'}
                   onClick={() => setReveal((v) => !v)}
                   className="absolute inset-y-0 right-0 flex items-center px-2.5 text-kumo-subtle transition-colors hover:text-kumo-default"
                 >
@@ -93,28 +93,28 @@ const TokenSection = () => {
                 </button>
               </div>
               <Button type="submit" disabled={!dirty}>
-                Save & reload
+                保存并重新加载
               </Button>
               {hasSaved ? (
                 <Button
                   type="button"
                   variant="outline"
-                  aria-label="Clear token"
+                  aria-label="清除令牌"
                   onClick={() => {
                     clearToken();
                     window.location.reload();
                   }}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only">Clear</span>
+                  <span className="sr-only sm:not-sr-only">清除</span>
                 </Button>
               ) : null}
             </div>
           </div>
           <p className="text-xs text-kumo-subtle">
-            Stored in your browser&apos;s localStorage only. Sent as{' '}
-            <code className="rounded bg-kumo-fill px-1.5 py-0.5">Authorization: Bearer</code> on
-            every <code className="rounded bg-kumo-fill px-1.5 py-0.5">/api/*</code> call.
+            仅存储在你浏览器的 localStorage 中。每次{' '}
+            <code className="rounded bg-kumo-fill px-1.5 py-0.5">/api/*</code> 调用时作为{' '}
+            <code className="rounded bg-kumo-fill px-1.5 py-0.5">Authorization: Bearer</code> 发送。
           </p>
         </form>
       </CardContent>
@@ -153,12 +153,12 @@ const ServerSection = ({ probe }: { probe: ReturnType<typeof useHealthProbe> }) 
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2">
-            <Activity className="h-4 w-4" /> Connection
+            <Activity className="h-4 w-4" /> 连接状态
           </CardTitle>
           <div className="flex items-center gap-2">
             <Badge variant={ok ? 'ok' : 'bad'} className="capitalize">
               <StatusDot ok={ok} />
-              {probe.isLoading ? 'checking' : ok ? 'connected' : 'offline'}
+              {probe.isLoading ? '检查中' : ok ? '已连接' : '离线'}
             </Badge>
             <Button
               variant="outline"
@@ -167,7 +167,7 @@ const ServerSection = ({ probe }: { probe: ReturnType<typeof useHealthProbe> }) 
               onClick={() => probe.refetch()}
             >
               <RefreshCw className={cn('h-3.5 w-3.5', probe.isFetching && 'animate-spin')} />
-              <span className="sr-only sm:not-sr-only">Refresh</span>
+              <span className="sr-only sm:not-sr-only">刷新</span>
             </Button>
           </div>
         </div>
@@ -177,17 +177,17 @@ const ServerSection = ({ probe }: { probe: ReturnType<typeof useHealthProbe> }) 
           <Spinner />
         ) : probe.isError ? (
           <p className="text-sm text-kumo-subtle">
-            Unreachable. Is health-mcp running on{' '}
+            无法连接。health-mcp 是否运行在{' '}
             <code className="rounded bg-kumo-fill px-1 py-0.5">localhost:7777</code>?
           </p>
         ) : probe.data ? (
           <ul className="space-y-0">
             <ProbeRow
-              label="version"
+              label="版本"
               value={<span className="font-mono">{probe.data.version}</span>}
             />
             <ProbeRow
-              label="database"
+              label="数据库"
               value={
                 <span
                   className={cn(
@@ -199,15 +199,15 @@ const ServerSection = ({ probe }: { probe: ReturnType<typeof useHealthProbe> }) 
                 </span>
               }
             />
-            <ProbeRow label="timezone" value={probe.data.tz} />
+            <ProbeRow label="时区" value={probe.data.tz} />
             <ProbeRow
-              label="auth required"
+              label="需要认证"
               value={
                 <span className="inline-flex items-center gap-1.5">
                   {probe.data.auth_required ? (
                     <ShieldCheck className="h-3.5 w-3.5 text-kumo-success" />
                   ) : null}
-                  {probe.data.auth_required ? 'yes' : 'no'}
+                  {probe.data.auth_required ? '是' : '否'}
                 </span>
               }
             />
@@ -251,7 +251,7 @@ const PathRow = ({
           type="button"
           variant="outline"
           size="sm"
-          aria-label={`Copy ${label} path`}
+          aria-label={`复制 ${label} 路径`}
           onClick={copy}
         >
           {copied ? (
@@ -259,7 +259,7 @@ const PathRow = ({
           ) : (
             <Copy className="h-3.5 w-3.5" aria-hidden="true" />
           )}
-          <span className="sr-only sm:not-sr-only">{copied ? 'Copied' : 'Copy'}</span>
+          <span className="sr-only sm:not-sr-only">{copied ? '已复制' : '复制'}</span>
         </Button>
       </div>
     </div>
@@ -270,16 +270,16 @@ const StorageSection = ({ probe }: { probe: Probe }) => (
   <Card>
     <CardHeader>
       <CardTitle className="flex items-center gap-2">
-        <HardDrive className="h-4 w-4" /> Storage
+        <HardDrive className="h-4 w-4" /> 存储
       </CardTitle>
       <p className="text-xs text-kumo-subtle">
-        Everything stays local — pass <code className="rounded bg-kumo-fill px-1 py-0.5">--db</code>{' '}
-        or <code className="rounded bg-kumo-fill px-1 py-0.5">HEALTH_MCP_DB</code> to move them.
+        全部本地存储 — 通过 <code className="rounded bg-kumo-fill px-1 py-0.5">--db</code>{' '}
+        或 <code className="rounded bg-kumo-fill px-1 py-0.5">HEALTH_MCP_DB</code> 更改路径。
       </p>
     </CardHeader>
     <CardContent className="space-y-4">
-      <PathRow icon={Database} label="Database" path={probe.db_path} />
-      <PathRow icon={Key} label="Auth file" path={probe.auth_path} />
+      <PathRow icon={Database} label="数据库" path={probe.db_path} />
+      <PathRow icon={Key} label="认证文件" path={probe.auth_path} />
     </CardContent>
   </Card>
 );
@@ -288,17 +288,17 @@ const RuntimeSection = ({ probe }: { probe: Probe }) => (
   <Card>
     <CardHeader>
       <CardTitle className="flex items-center gap-2">
-        <Server className="h-4 w-4" /> Runtime
+        <Server className="h-4 w-4" /> 运行时
       </CardTitle>
       <p className="text-xs text-kumo-subtle">
-        Set via CLI flags, <code className="rounded bg-kumo-fill px-1 py-0.5">HEALTH_MCP_*</code>{' '}
-        env vars, or the JSON config file.
+        通过 CLI 参数、<code className="rounded bg-kumo-fill px-1 py-0.5">HEALTH_MCP_*</code>{' '}
+        环境变量或 JSON 配置文件设置。
       </p>
     </CardHeader>
     <CardContent>
       <ul className="space-y-0">
         <ProbeRow
-          label="bind"
+          label="绑定地址"
           value={
             <span className="font-mono">
               {probe.host}:{probe.port}
@@ -306,31 +306,31 @@ const RuntimeSection = ({ probe }: { probe: Probe }) => (
           }
         />
         <ProbeRow
-          label="dashboard"
+          label="仪表盘"
           value={
             <Badge variant={probe.dashboard ? 'ok' : 'muted'} className="capitalize">
-              {probe.dashboard ? 'on' : 'off'}
+              {probe.dashboard ? '开启' : '关闭'}
             </Badge>
           }
         />
         <ProbeRow
-          label="log level"
+          label="日志级别"
           value={<span className="font-mono uppercase">{probe.log_level}</span>}
         />
         <ProbeRow
-          label="auto migrate"
+          label="自动迁移"
           value={
             <Badge variant={probe.auto_migrate ? 'ok' : 'muted'} className="capitalize">
-              {probe.auto_migrate ? 'enabled' : 'disabled'}
+              {probe.auto_migrate ? '已启用' : '已禁用'}
             </Badge>
           }
         />
         <ProbeRow
-          label="whoop cron"
+          label="Whoop 定时任务"
           value={<span className="font-mono text-xs">{probe.whoop_sync_cron}</span>}
         />
         <ProbeRow
-          label="wearable redirect"
+          label="可穿戴重定向"
           value={
             probe.wearable_redirect_base ? (
               <span className="truncate font-mono text-xs">{probe.wearable_redirect_base}</span>
@@ -360,10 +360,10 @@ const ProvidersSection = ({ probe }: { probe: Probe }) => (
   <Card>
     <CardHeader>
       <CardTitle className="flex items-center gap-2">
-        <Plug className="h-4 w-4" /> Providers
+        <Plug className="h-4 w-4" /> 提供商
       </CardTitle>
       <p className="text-xs text-kumo-subtle">
-        Credential presence only — secrets never leave the server.
+        仅检测凭据是否存在 — 密钥永远不会离开服务器。
       </p>
     </CardHeader>
     <CardContent>
@@ -389,7 +389,7 @@ const ProvidersSection = ({ probe }: { probe: Probe }) => (
                 </div>
               </div>
               <Badge variant={configured ? 'ok' : 'outline'} className="shrink-0 capitalize">
-                {configured ? 'configured' : 'not set'}
+                {configured ? '已配置' : '未设置'}
               </Badge>
             </li>
           );
@@ -403,7 +403,7 @@ const Settings = () => {
   const probe = useHealthProbe();
   return (
     <>
-      <PageHeader title="Settings" description="Local-only configuration." />
+      <PageHeader title="设置" description="本地配置。" />
       <div className="grid gap-4 lg:grid-cols-2">
         <TokenSection />
         <ServerSection probe={probe} />

@@ -16,7 +16,7 @@ export const RangeToggle = ({
   <div
     className="inline-flex rounded-md border border-kumo-line bg-kumo-elevated p-0.5"
     role="tablist"
-    aria-label="Date range"
+    aria-label="日期范围"
   >
     {RANGES.map((r) => {
       const active = days === r.days;

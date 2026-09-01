@@ -6,10 +6,10 @@ export const STATUS_VARIANT = {
 } as const;
 
 export const STATUS_LABEL = {
-  optimal: 'optimal',
-  in_ref: 'in range',
-  out_of_ref: 'out of range',
-  unknown: 'unknown',
+  optimal: '最佳',
+  in_ref: '正常',
+  out_of_ref: '异常',
+  unknown: '未知',
 } as const;
 
 export type BiomarkerStatus = keyof typeof STATUS_VARIANT;

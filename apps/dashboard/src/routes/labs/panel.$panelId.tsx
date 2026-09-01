@@ -28,8 +28,8 @@ const PanelDetail = () => {
     return (
       <Empty
         icon={Beaker}
-        title="Panel not found"
-        description={(detail.error as Error)?.message ?? 'No record for this id.'}
+        title="面板未找到"
+        description={(detail.error as Error)?.message ?? '未找到该 id 的记录。'}
       />
     );
   }
@@ -45,13 +45,13 @@ const PanelDetail = () => {
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-kumo-subtle transition-colors hover:text-kumo-default"
       >
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-        Back to labs
+        返回化验
       </Link>
       <header className="mb-6 space-y-2 sm:mb-8">
         <div className="flex flex-wrap items-center gap-2">
           <FlaskConical className="h-5 w-5 text-kumo-brand" aria-hidden="true" />
           <h1 className="text-2xl font-semibold leading-tight tracking-tight text-kumo-strong sm:text-[26px]">
-            {panel.name ?? panel.lab_name ?? 'Lab panel'}
+            {panel.name ?? panel.lab_name ?? '化验面板'}
           </h1>
         </div>
         <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-kumo-subtle">
@@ -65,32 +65,32 @@ const PanelDetail = () => {
           {panel.fasting != null ? (
             <>
               <span aria-hidden="true">·</span>
-              <span>{panel.fasting ? 'fasting' : 'non-fasting'}</span>
+              <span>{panel.fasting ? '空腹' : '非空腹'}</span>
             </>
           ) : null}
           {panel.ordered_by ? (
             <>
               <span aria-hidden="true">·</span>
-              <span>ordered by {panel.ordered_by}</span>
+              <span>开具者：{panel.ordered_by}</span>
             </>
           ) : null}
         </p>
       </header>
 
       <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <SummaryTile label="Optimal" count={counts.optimal} tone="text-kumo-success" />
-        <SummaryTile label="In range" count={counts.in_ref} tone="text-kumo-default" />
-        <SummaryTile label="Out of range" count={counts.out_of_ref} tone="text-kumo-danger" />
-        <SummaryTile label="Unknown" count={counts.unknown} tone="text-kumo-subtle" />
+        <SummaryTile label="最佳" count={counts.optimal} tone="text-kumo-success" />
+        <SummaryTile label="正常" count={counts.in_ref} tone="text-kumo-default" />
+        <SummaryTile label="异常" count={counts.out_of_ref} tone="text-kumo-danger" />
+        <SummaryTile label="未知" count={counts.unknown} tone="text-kumo-subtle" />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Results ({rows.length})</CardTitle>
+          <CardTitle>结果 ({rows.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {rows.length === 0 ? (
-            <Empty title="No results recorded for this panel" />
+            <Empty title="该面板暂无记录结果" />
           ) : (
             <ul className="grid gap-2 sm:grid-cols-2">
               {rows.map((row) => (
@@ -140,7 +140,7 @@ const PanelDetail = () => {
       {panel.notes ? (
         <Card className="mt-4">
           <CardHeader>
-            <CardTitle>Notes</CardTitle>
+            <CardTitle>备注</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="whitespace-pre-line text-sm text-kumo-default">{panel.notes}</p>

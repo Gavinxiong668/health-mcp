@@ -85,10 +85,10 @@ export const EditRingsDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <SlidersHorizontal className="h-4 w-4 text-kumo-brand" aria-hidden="true" />
-            Edit rings
+            编辑环形图
           </DialogTitle>
           <DialogDescription>
-            Pick up to {MAX_TRACKED_MACROS} macros to track on Today. Calories is always shown.
+            选择最多 {MAX_TRACKED_MACROS} 个宏量营养素在今日跟踪。热量始终显示。
           </DialogDescription>
         </DialogHeader>
 
@@ -105,12 +105,12 @@ export const EditRingsDialog = ({
                 label={
                   <span className="flex items-center gap-2">
                     <ColorDot color={MACRO_META.kcal.color} />
-                    <span className="text-kumo-strong">Calories</span>
+                    <span className="text-kumo-strong">热量</span>
                   </span>
                 }
               />
               <Badge variant="muted" className="ml-auto">
-                Always
+                始终
               </Badge>
             </div>
 
@@ -137,7 +137,7 @@ export const EditRingsDialog = ({
                             · {target}
                           </span>
                         ) : (
-                          <span className="text-xs text-kumo-subtle/60">· no target</span>
+                          <span className="text-xs text-kumo-subtle/60">· 无目标</span>
                         )}
                       </span>
                     }
@@ -154,23 +154,23 @@ export const EditRingsDialog = ({
               value={String(selected.length)}
               className="font-medium text-kumo-default"
             />
-            {` / ${MAX_TRACKED_MACROS} macros`}
+            {` / ${MAX_TRACKED_MACROS} 个宏量营养素`}
           </p>
           {atMax ? (
-            <span className="text-kumo-subtle/80">Max reached — untrack one to swap.</span>
+            <span className="text-kumo-subtle/80">已达上限 — 取消一个以替换。</span>
           ) : null}
         </div>
 
         <DialogFooter>
           <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-            Cancel
+            取消
           </Button>
           <Button
             type="button"
             disabled={!dirty || save.isPending}
             onClick={() => save.mutate(selected)}
           >
-            {save.isPending ? 'Saving…' : 'Save rings'}
+            {save.isPending ? '保存中…' : '保存环形图'}
           </Button>
         </DialogFooter>
       </DialogContent>

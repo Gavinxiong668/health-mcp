@@ -50,29 +50,29 @@ type Example = {
 
 const EXAMPLES: Example[] = [
   {
-    title: 'Calories → sleep',
-    question: 'Do heavier days disturb sleep that night?',
+    title: '热量 → 睡眠',
+    question: '摄入较多的日子是否会影响当晚睡眠？',
     a: { source: 'intake', field: 'kcal', agg: 'sum' },
     b: { source: 'wearable_sleep', field: 'score', agg: 'avg' },
     lag: 0,
   },
   {
-    title: 'Protein → recovery',
-    question: 'Does protein intake track with next-day recovery?',
+    title: '蛋白质 → 恢复',
+    question: '蛋白质摄入是否与次日恢复情况相关？',
     a: { source: 'intake', field: 'protein_g', agg: 'sum' },
     b: { source: 'wearable_readiness', field: 'score', agg: 'avg' },
     lag: 1,
   },
   {
-    title: 'Hydration → HRV',
-    question: 'Does drinking more water move HRV?',
+    title: '水分 → HRV',
+    question: '多喝水是否会影响 HRV？',
     a: { source: 'hydration', field: 'ml', agg: 'sum' },
     b: { source: 'wearable_readiness', field: 'hrv_rmssd', agg: 'avg' },
     lag: 0,
   },
   {
-    title: 'Carbs → weight (weekly)',
-    question: 'Do weekly carbs trend with weight?',
+    title: '碳水 → 体重（每周）',
+    question: '每周碳水摄入是否与体重趋势相关？',
     a: { source: 'intake', field: 'carb_g', agg: 'sum' },
     b: { source: 'weight', field: 'kg', agg: 'avg' },
     lag: 0,
@@ -99,13 +99,13 @@ const correlationTone = (r: number | null): 'ok' | 'warn' | 'bad' | 'default' =>
 };
 
 const correlationLabel = (r: number | null): string => {
-  if (r === null) return 'not enough data';
+  if (r === null) return '数据不足';
   const abs = Math.abs(r);
-  const direction = r >= 0 ? 'positive' : 'negative';
-  if (abs >= 0.7) return `strong ${direction}`;
-  if (abs >= 0.5) return `moderate ${direction}`;
-  if (abs >= 0.3) return `weak ${direction}`;
-  return 'negligible';
+  const direction = r >= 0 ? '正相关' : '负相关';
+  if (abs >= 0.7) return `强${direction}`;
+  if (abs >= 0.5) return `中等${direction}`;
+  if (abs >= 0.3) return `弱${direction}`;
+  return '可忽略';
 };
 
 const Stat = ({
@@ -212,11 +212,11 @@ const SpecPicker = ({
         {label}
       </span>
       <span className="text-xs font-medium uppercase tracking-wide text-kumo-subtle">
-        Series {label}
+        序列 {label}
       </span>
     </div>
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <FormField label="Source" htmlFor={`spec-${label}-source`}>
+      <FormField label="数据源" htmlFor={`spec-${label}-source`}>
         <Select
           id={`spec-${label}-source`}
           value={spec.source}
@@ -231,7 +231,7 @@ const SpecPicker = ({
           ))}
         </Select>
       </FormField>
-      <FormField label="Field" htmlFor={`spec-${label}-field`}>
+      <FormField label="字段" htmlFor={`spec-${label}-field`}>
         <Select
           id={`spec-${label}-field`}
           value={spec.field}
@@ -244,7 +244,7 @@ const SpecPicker = ({
           ))}
         </Select>
       </FormField>
-      <FormField label="Aggregation" htmlFor={`spec-${label}-agg`}>
+      <FormField label="聚合方式" htmlFor={`spec-${label}-agg`}>
         <Select
           id={`spec-${label}-agg`}
           value={spec.agg}
@@ -257,10 +257,10 @@ const SpecPicker = ({
           ))}
         </Select>
       </FormField>
-      <FormField label="Filter" htmlFor={`spec-${label}-filter`}>
+      <FormField label="筛选" htmlFor={`spec-${label}-filter`}>
         <Input
           id={`spec-${label}-filter`}
-          placeholder="e.g. biomarker=Glucose"
+          placeholder="例如 biomarker=Glucose"
           value={spec.filter}
           onChange={(e) => onChange({ ...spec, filter: e.target.value })}
         />
@@ -274,31 +274,29 @@ const Explainer = () => (
     <CardHeader>
       <CardTitle className="flex items-center gap-2">
         <HelpCircle className="h-4 w-4 text-kumo-brand" aria-hidden="true" />
-        How Insights works
+        洞察工作原理
       </CardTitle>
     </CardHeader>
     <CardContent className="space-y-3 text-sm text-kumo-subtle">
       <p>
-        Pick any two time series — calories, sleep score, HRV, hydration, labs — and we compute the{' '}
-        <span className="font-medium text-kumo-default">correlation</span> over a date range. The
-        result is a number <span className="font-mono text-kumo-default">r ∈ [−1, 1]</span> telling
-        you how tightly the two move together.
+        选择任意两个时间序列 — 热量、睡眠评分、HRV、水分、化验数据 — 我们会计算指定日期范围内的{' '}
+        <span className="font-medium text-kumo-default">相关性</span>。
+        结果是一个 <span className="font-mono text-kumo-default">r ∈ [−1, 1]</span> 的数值，表示两个序列的联动程度。
       </p>
       <ul className="grid gap-2 sm:grid-cols-3">
         <li className="rounded-md border border-kumo-line bg-kumo-elevated px-3 py-2 text-xs">
-          <span className="font-semibold text-kumo-success">|r| ≥ 0.5</span> · moves together a lot
+          <span className="font-semibold text-kumo-success">|r| ≥ 0.5</span> · 联动明显
         </li>
         <li className="rounded-md border border-kumo-line bg-kumo-elevated px-3 py-2 text-xs">
-          <span className="font-semibold text-kumo-warning">0.3 – 0.5</span> · weak link
+          <span className="font-semibold text-kumo-warning">0.3 – 0.5</span> · 弱相关
         </li>
         <li className="rounded-md border border-kumo-line bg-kumo-elevated px-3 py-2 text-xs">
-          <span className="font-semibold text-kumo-danger">&lt; 0.3</span> · essentially unrelated
+          <span className="font-semibold text-kumo-danger">&lt; 0.3</span> · 基本无关
         </li>
       </ul>
       <p className="text-xs">
-        Use <span className="font-medium text-kumo-default">lag</span> when one signal should
-        precede the other — e.g. yesterday&apos;s calories vs. today&apos;s sleep is lag 1 (day).
-        Correlation is not causation; treat this as a hint, not a verdict.
+        使用<span className="font-medium text-kumo-default">滞后</span>来测试一个信号是否领先于另一个 — 例如昨天热量 vs 今天睡眠是滞后 1（天）。
+        相关性不等于因果关系；请将此作为参考，而非结论。
       </p>
     </CardContent>
   </Card>
@@ -368,8 +366,8 @@ const Insights = () => {
   return (
     <>
       <PageHeader
-        title="Insights"
-        description="Correlate any two time series — intake, wearables, labs — over a date range."
+        title="洞察"
+        description="关联任意两个时间序列 — 摄入、可穿戴、化验 — 在指定日期范围内。"
       />
       <div className="grid gap-4">
         <Explainer />
@@ -378,8 +376,7 @@ const Insights = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="h-4 w-4 text-kumo-warning" aria-hidden="true" /> Quick
-                examples
+                <Lightbulb className="h-4 w-4 text-kumo-warning" aria-hidden="true" /> 快速示例
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -410,7 +407,7 @@ const Insights = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-kumo-brand" aria-hidden="true" /> Configure
+                <Sparkles className="h-4 w-4 text-kumo-brand" aria-hidden="true" /> 配置
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -432,7 +429,7 @@ const Insights = () => {
                   fieldsFor={fieldsFor}
                 />
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <FormField label="Start" htmlFor="i-start">
+                  <FormField label="开始日期" htmlFor="i-start">
                     <Input
                       id="i-start"
                       type="date"
@@ -440,7 +437,7 @@ const Insights = () => {
                       onChange={(e) => setStart(e.target.value)}
                     />
                   </FormField>
-                  <FormField label="End" htmlFor="i-end">
+                  <FormField label="结束日期" htmlFor="i-end">
                     <Input
                       id="i-end"
                       type="date"
@@ -449,29 +446,29 @@ const Insights = () => {
                     />
                   </FormField>
                 </div>
-                <FormField label="Bucket size">
+                <FormField label="时间粒度">
                   <ChipToggle
                     value={bucket}
                     options={BUCKETS}
                     onChange={setBucket}
-                    label="Bucket size"
+                    label="时间粒度"
                   />
                 </FormField>
                 <FormField
-                  label="Method"
-                  description="Pearson assumes linear; Spearman is rank-based and robust to outliers."
+                  label="方法"
+                  description="Pearson 假设线性关系；Spearman 基于秩次，对异常值更稳健。"
                 >
                   <ChipToggle
                     value={method}
                     options={METHODS}
                     onChange={setMethod}
-                    label="Correlation method"
+                    label="相关性方法"
                   />
                 </FormField>
                 <FormField
-                  label={`Lag (in ${bucket}s)`}
+                  label={`滞后（${bucket}）`}
                   htmlFor="i-lag"
-                  description="Positive lag shifts A back, so it tests whether A leads B."
+                  description="正滞后会将 A 前移，测试 A 是否领先于 B。"
                 >
                   <Input
                     id="i-lag"
@@ -482,7 +479,7 @@ const Insights = () => {
                   />
                 </FormField>
                 <Button type="submit" className="w-full" disabled={run.isPending}>
-                  {run.isPending ? <Spinner /> : 'Compute correlation'}
+                  {run.isPending ? <Spinner /> : '计算相关性'}
                 </Button>
                 {run.isError ? (
                   <p className="text-xs text-kumo-danger" role="alert">
@@ -495,14 +492,14 @@ const Insights = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Result</CardTitle>
+              <CardTitle>结果</CardTitle>
             </CardHeader>
             <CardContent>
               {!run.data ? (
                 <Empty
                   icon={Sparkles}
-                  title="No result yet"
-                  description="Pick an example above, or configure two series and hit compute."
+                  title="暂无结果"
+                  description="选择上方的示例，或配置两个序列后点击计算。"
                 />
               ) : (
                 <div className="t-panel-reveal space-y-5" key={run.submittedAt}>
@@ -516,12 +513,12 @@ const Insights = () => {
                     <Stat
                       label="n pairs"
                       value={String(run.data.n)}
-                      sub={run.data.n < 7 ? 'low confidence' : `${bucket} buckets`}
+                      sub={run.data.n < 7 ? '低置信度' : `${bucket} 粒度`}
                     />
                     <Stat
                       label="lag"
                       value={`${run.data.lag_buckets} ${run.data.bucket}`}
-                      sub={run.data.lag_buckets === 0 ? 'same period' : 'A leads B'}
+                      sub={run.data.lag_buckets === 0 ? '同期' : 'A 领先 B'}
                     />
                   </div>
                   {chartData.length > 0 ? (
@@ -618,15 +615,15 @@ const Insights = () => {
                   ) : null}
                   {run.data.r !== null && run.data.n >= 7 ? (
                     <p className="text-xs text-kumo-subtle">
-                      Reading: {a.source}.{a.field} shows a{' '}
+                      解读：{a.source}.{a.field} 与 {b.source}.{b.field} 呈现{' '}
                       <span className="font-medium text-kumo-default">
                         {correlationLabel(run.data.r)}
-                      </span>{' '}
-                      relationship with {b.source}.{b.field}
+                      </span>
+                      关系
                       {run.data.lag_buckets > 0
-                        ? ` at lag ${run.data.lag_buckets} ${run.data.bucket}`
+                        ? `，滞后 ${run.data.lag_buckets} ${run.data.bucket}`
                         : ''}
-                      .
+                      。
                     </p>
                   ) : null}
                 </div>

@@ -350,3 +350,49 @@
     transition: none !important;
   }
 }
+
+/* ── Print / PDF styles ── */
+@media print {
+  /* Hide navigation chrome */
+  aside,
+  header.sticky,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Reset layout to full-width single column */
+  .lg\:grid {
+    display: block !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove decorative backgrounds/borders */
+  .report-content {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Keep cards from splitting across pages */
+  .report-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Charts should not overflow */
+  .recharts-wrapper {
+    max-width: 100% !important;
+  }
+
+  /* Links show as plain text */
+  a {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+}

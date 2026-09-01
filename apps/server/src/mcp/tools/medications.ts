@@ -1,0 +1,106 @@
+import { z } from 'zod';
+import {
+  createMedication,
+  deleteMedication,
+  getMedication,
+  listMedicationLog,
+  listMedications,
+  logMedicationDose,
+  updateMedication,
+} from '../../services/medications.js';
+import { tool } from '../tool-registry.js';
+
+export const medicationTools = [
+  tool({
+    name: 'create_medication',
+    description:
+      'Add a medication or supplement to track. Includes name, category, dose, frequency, and indication.',
+    group: 'medication',
+    inputSchema: z.object({
+      name: z.string().min(1),
+      category: z.enum(['prescription', 'otc', 'supplement', 'vitamin', 'mineral', 'herbal', 'other']).optional(),
+      dose_amount: z.number().positive().optional(),
+      dose_unit: z.string().min(1).optional(),
+      frequency: z.string().optional(),
+      time_of_day: z.array(z.enum(['morning', 'noon', 'evening', 'bedtime'])).optional(),
+      start_date: z.string().optional(),
+      end_date: z.string().optional(),
+      prescriber: z.string().optional(),
+      indication: z.string().optional(),
+      notes: z.string().optional(),
+    }),
+    handler: (args, ctx) => createMedication(ctx, args),
+  }),
+  tool({
+    name: 'list_medications',
+    description: 'List all medications. Set active_only to filter to active ones.',
+    group: 'medication',
+    inputSchema: z.object({
+      active_only: z.boolean().optional(),
+    }),
+    handler: (args, ctx) => listMedications(ctx, args),
+  }),
+  tool({
+    name: 'get_medication',
+    description: 'Get a single medication by ID.',
+    group: 'medication',
+    inputSchema: z.object({ id: z.string().min(1) }),
+    handler: (args, ctx) => getMedication(ctx, args.id),
+  }),
+  tool({
+    name: 'update_medication',
+    description: 'Update one or more fields on a medication.',
+    group: 'medication',
+    inputSchema: z.object({
+      id: z.string().min(1),
+      name: z.string().min(1).optional(),
+      category: z.enum(['prescription', 'otc', 'supplement', 'vitamin', 'mineral', 'herbal', 'other']).nullable().optional(),
+      dose_amount: z.number().positive().nullable().optional(),
+      dose_unit: z.string().nullable().optional(),
+      frequency: z.string().nullable().optional(),
+      time_of_day: z.array(z.enum(['morning', 'noon', 'evening', 'bedtime'])).nullable().optional(),
+      start_date: z.string().nullable().optional(),
+      end_date: z.string().nullable().optional(),
+      prescriber: z.string().nullable().optional(),
+      indication: z.string().nullable().optional(),
+      notes: z.string().nullable().optional(),
+      active: z.boolean().optional(),
+    }),
+    handler: (args, ctx) => updateMedication(ctx, args),
+  }),
+  tool({
+    name: 'delete_medication',
+    description: 'Delete a medication and its log entries.',
+    group: 'medication',
+    inputSchema: z.object({ id: z.string().min(1) }),
+    handler: (args, ctx) => deleteMedication(ctx, args.id),
+  }),
+  tool({
+    name: 'log_medication_dose',
+    description: 'Log a dose taken (or skipped) for a medication.',
+    group: 'medication',
+    inputSchema: z.object({
+      medication_id: z.string().min(1),
+      dose_amount: z.number().positive().optional(),
+      dose_unit: z.string().min(1).optional(),
+      taken: z.boolean().optional(),
+      skipped: z.boolean().optional(),
+      ts: z.string().optional(),
+      notes: z.string().optional(),
+    }),
+    handler: (args, ctx) => logMedicationDose(ctx, args),
+  }),
+  tool({
+    name: 'list_medication_log',
+    description: 'List medication dose log entries by date or range.',
+    group: 'medication',
+    inputSchema: z.object({
+      medication_id: z.string().optional(),
+      date: z.string().optional(),
+      start: z.string().optional(),
+      end: z.string().optional(),
+      limit: z.number().int().positive().max(500).optional(),
+    }),
+    handler: (args, ctx) => listMedicationLog(ctx, args),
+  }),
+];

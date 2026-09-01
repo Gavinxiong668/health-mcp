@@ -84,8 +84,8 @@ const BiomarkerDetail = () => {
     return (
       <Empty
         icon={Beaker}
-        title="Biomarker not found"
-        description={(biomarker.error as Error)?.message ?? 'No record for this id.'}
+        title="生物标志物未找到"
+        description={(biomarker.error as Error)?.message ?? '未找到该 id 的记录。'}
       />
     );
   }
@@ -121,7 +121,7 @@ const BiomarkerDetail = () => {
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-kumo-subtle transition-colors hover:text-kumo-default"
       >
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-        Back to labs
+        返回化验
       </Link>
       <header className="mb-6 space-y-2 sm:mb-8">
         <div className="flex flex-wrap items-center gap-2">
@@ -140,7 +140,7 @@ const BiomarkerDetail = () => {
                   <button
                     {...p}
                     type="button"
-                    aria-label={`What is LOINC ${b.loinc_code}?`}
+                    aria-label={`什么是 LOINC ${b.loinc_code}？`}
                     className="inline-flex h-6 cursor-pointer items-center gap-1 rounded-md border border-kumo-line bg-kumo-fill px-2 font-mono text-[10px] uppercase tracking-wide text-kumo-subtle transition-colors hover:bg-kumo-tint hover:text-kumo-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-kumo-focus"
                   >
                     <Info className="h-3 w-3" aria-hidden="true" />
@@ -154,10 +154,10 @@ const BiomarkerDetail = () => {
                 </Popover.Title>
                 <Popover.Description className="mt-1.5 text-xs leading-relaxed text-kumo-subtle">
                   <span className="font-medium text-kumo-default">
-                    Logical Observation Identifiers Names and Codes
+                    逻辑观察标识符名称和代码
                   </span>{' '}
-                  — an international standard that gives every lab measurement a stable identifier
-                  so results match across labs and EHR systems.
+                  — 国际标准，为每个化验测量提供稳定标识符，
+                  确保结果在不同实验室和电子病历系统间一致。
                 </Popover.Description>
                 <a
                   href={`https://loinc.org/${b.loinc_code}/`}
@@ -165,7 +165,7 @@ const BiomarkerDetail = () => {
                   rel="noopener noreferrer"
                   className="mt-2 inline-flex text-xs font-medium text-kumo-brand hover:underline"
                 >
-                  View on loinc.org →
+                  在 loinc.org 上查看 →
                 </a>
               </Popover.Content>
             </Popover>
@@ -173,7 +173,7 @@ const BiomarkerDetail = () => {
         </div>
         {aliasList.length > 0 ? (
           <p className="text-sm text-kumo-subtle">
-            Also known as <span className="text-kumo-default">{aliasList.join(', ')}</span>
+            别名：<span className="text-kumo-default">{aliasList.join(', ')}</span>
           </p>
         ) : null}
       </header>
@@ -182,35 +182,35 @@ const BiomarkerDetail = () => {
         <div className="grid gap-4">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatTile
-              label="Latest"
+              label="最新"
               value={
                 latestValue != null
                   ? `${fmtNum(latestValue, 2)} ${latest?.unit_ucum ?? b.default_unit_ucum}`
                   : '—'
               }
-              hint={latest ? fmtDate(latest.taken_at) : 'no entries'}
+              hint={latest ? fmtDate(latest.taken_at) : '无记录'}
             />
             <StatTile
-              label="Reference"
+              label="参考范围"
               value={refLabel}
-              hint={hasRef ? 'population range' : 'not set'}
+              hint={hasRef ? '人群范围' : '未设置'}
             />
             <StatTile
-              label="Optimal"
+              label="最佳范围"
               value={optLabel}
-              hint={hasOpt ? 'your target band' : 'not set'}
+              hint={hasOpt ? '你的目标区间' : '未设置'}
             />
-            <StatTile label="Entries" value={String(sortedResults.length)} hint={entriesHint} />
+            <StatTile label="记录数" value={String(sortedResults.length)} hint={entriesHint} />
           </div>
           <Card>
             <CardHeader>
-              <CardTitle>Trend</CardTitle>
+              <CardTitle>趋势</CardTitle>
             </CardHeader>
             <CardContent>
               {trend.isLoading ? (
                 <Spinner />
               ) : chartData.length === 0 ? (
-                <Empty title="No numeric data" description="Need at least one numeric result." />
+                <Empty title="无数值数据" description="至少需要一条数值结果。" />
               ) : (
                 <ResponsiveContainer width="100%" height={260}>
                   <AreaChart data={chartData} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
@@ -273,7 +273,7 @@ const BiomarkerDetail = () => {
                         strokeOpacity={0.4}
                         strokeDasharray="4 4"
                         label={{
-                          value: `ref low ${fmtNum(b.default_ref_low, 2)}`,
+                          value: `参考下限 ${fmtNum(b.default_ref_low, 2)}`,
                           fontSize: 10,
                           fill: 'var(--text-color-kumo-subtle)',
                           position: 'insideTopLeft',
@@ -287,7 +287,7 @@ const BiomarkerDetail = () => {
                         strokeOpacity={0.4}
                         strokeDasharray="4 4"
                         label={{
-                          value: `ref high ${fmtNum(b.default_ref_high, 2)}`,
+                          value: `参考上限 ${fmtNum(b.default_ref_high, 2)}`,
                           fontSize: 10,
                           fill: 'var(--text-color-kumo-subtle)',
                           position: 'insideBottomLeft',
@@ -321,13 +321,13 @@ const BiomarkerDetail = () => {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>History</CardTitle>
+              <CardTitle>历史</CardTitle>
             </CardHeader>
             <CardContent>
               {results.isLoading ? (
                 <Spinner />
               ) : sortedResults.length === 0 ? (
-                <Empty title="No results" />
+                <Empty title="暂无结果" />
               ) : (
                 <ul className="divide-y divide-kumo-line">
                   {sortedResults.map((r) => {
@@ -364,24 +364,24 @@ const BiomarkerDetail = () => {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle>About</CardTitle>
+            <CardTitle>关于</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-kumo-subtle">
             {b.why_it_matters ? (
-              <AboutSection label="Why it matters" body={b.why_it_matters} />
+              <AboutSection label="重要性" body={b.why_it_matters} />
             ) : null}
-            {b.influences ? <AboutSection label="What influences it" body={b.influences} /> : null}
+            {b.influences ? <AboutSection label="影响因素" body={b.influences} /> : null}
             {b.how_to_improve ? (
-              <AboutSection label="How to improve" body={b.how_to_improve} />
+              <AboutSection label="改善方法" body={b.how_to_improve} />
             ) : null}
             {!b.why_it_matters && !b.influences && !b.how_to_improve ? (
-              <p>No description recorded for this biomarker yet.</p>
+              <p>该生物标志物暂无描述。</p>
             ) : null}
-            {b.notes ? <AboutSection label="Notes" body={b.notes} /> : null}
+            {b.notes ? <AboutSection label="备注" body={b.notes} /> : null}
             <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 border-t border-kumo-line pt-3 text-xs">
-              <dt className="text-kumo-subtle">Unit</dt>
+              <dt className="text-kumo-subtle">单位</dt>
               <dd className="font-mono text-kumo-default">{b.default_unit_ucum}</dd>
-              <dt className="text-kumo-subtle">Value type</dt>
+              <dt className="text-kumo-subtle">值类型</dt>
               <dd className="capitalize text-kumo-default">{b.value_type.replace('_', ' ')}</dd>
             </dl>
           </CardContent>
