@@ -71,6 +71,7 @@ export type FoodDto = {
   iron_mg: number | null;
   // JSON-encoded string[] of search synonyms (mirrors the biomarker `aliases` shape).
   aliases: string | null;
+  category: string | null;
   created_at: string;
 };
 
@@ -507,6 +508,18 @@ export type FluidOutputEntryDto = {
   kind: 'urine' | 'sweat' | 'vomit' | 'drain' | 'stool' | 'other';
   ml: number;
   notes: string | null;
+  created_at: string;
+};
+
+export type MealPlanEntryDto = {
+  id: string;
+  date: string;
+  meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  recipe_id: string | null;
+  name: string;
+  servings: number;
+  notes: string | null;
+  status: 'planned' | 'consumed' | 'skipped';
   created_at: string;
 };
 

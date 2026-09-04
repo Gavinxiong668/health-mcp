@@ -22,8 +22,22 @@ import {
 } from '../../services/wearables.js';
 import { tool } from '../tool-registry.js';
 
-const hasAnyWearable = (ctx: WearableServiceCtx): boolean =>
-  Object.keys(ctx.authStore.list()).length > 0;
+const hasAnyWearable = (ctx: WearableServiceCtx): boolean => {
+  // OAuth-linked providers (Whoop, Oura, …)
+  if (Object.keys(ctx.authStore.list()).length > 0) return true;
+  // Push-based providers (Zepp) – check whether any normalised data exists
+  try {
+    const row = ctx.db
+      .prepare(
+        "SELECT COUNT(*) AS cnt FROM wearable_daily WHERE provider = 'zepp'",
+      )
+      .get() as { cnt: number };
+    if (row.cnt > 0) return true;
+  } catch {
+    /* table may not exist yet – ignore */
+  }
+  return false;
+};
 
 const hasWhoop = (ctx: WearableServiceCtx): boolean => Boolean(ctx.authStore.get('whoop'));
 
@@ -82,7 +96,6 @@ export const wearableTools = [
       providers: z.array(z.string()).optional(),
     }),
     handler: (args, ctx) => wearableSleep(ctx, args),
-    isAvailable: hasAnyWearable,
   }),
   tool({
     name: 'wearable_activity',
@@ -95,7 +108,6 @@ export const wearableTools = [
       providers: z.array(z.string()).optional(),
     }),
     handler: (args, ctx) => wearableActivity(ctx, args),
-    isAvailable: hasAnyWearable,
   }),
   tool({
     name: 'wearable_readiness',
@@ -108,7 +120,6 @@ export const wearableTools = [
       providers: z.array(z.string()).optional(),
     }),
     handler: (args, ctx) => wearableReadiness(ctx, args),
-    isAvailable: hasAnyWearable,
   }),
   tool({
     name: 'wearable_daily',
@@ -121,7 +132,6 @@ export const wearableTools = [
       providers: z.array(z.string()).optional(),
     }),
     handler: (args, ctx) => wearableDaily(ctx, args),
-    isAvailable: hasAnyWearable,
   }),
   tool({
     name: 'wearable_metric_minutes',
@@ -134,7 +144,6 @@ export const wearableTools = [
       providers: z.array(z.string()).optional(),
     }),
     handler: (args, ctx) => wearableMetricMinutes(ctx, args),
-    isAvailable: hasAnyWearable,
   }),
   tool({
     name: 'set_activity_type_map',

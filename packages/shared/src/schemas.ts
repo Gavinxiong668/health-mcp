@@ -67,12 +67,15 @@ export const foodAliasesSchema = z.array(z.string().trim().min(1).max(120)).max(
 // on it, so re-importing the same source never creates a duplicate.
 export const externalIdSchema = z.string().trim().min(1).max(200);
 
+export const foodCategorySchema = z.string().trim().min(1).max(50);
+
 export const customFoodInputSchema = z.object({
   name: z.string().min(1),
   brand: z.string().min(1).optional(),
   serving_grams: z.number().positive().optional(),
   external_id: externalIdSchema.optional(),
   aliases: foodAliasesSchema.optional(),
+  category: foodCategorySchema.optional(),
   nutrients_per_100g: nutrientsPer100gSchema,
 });
 export type CustomFoodInput = z.infer<typeof customFoodInputSchema>;
@@ -84,6 +87,7 @@ export const updateCustomFoodInputSchema = z.object({
   serving_grams: z.number().positive().nullable().optional(),
   external_id: externalIdSchema.nullable().optional(),
   aliases: foodAliasesSchema.nullable().optional(),
+  category: foodCategorySchema.nullable().optional(),
   nutrients_per_100g: nutrientsPer100gSchema.optional(),
 });
 export type UpdateCustomFoodInput = z.infer<typeof updateCustomFoodInputSchema>;
@@ -231,15 +235,18 @@ export const createBatchInputSchema = z
   .object({
     name: z.string().optional(),
     recipe_id: z.string().min(1).optional(),
+    food_id: z.string().min(1).optional(),
     total_grams: z.number().positive(),
+    consumed_grams: z.number().positive().optional(),
     ingredients_override: z.array(recipeIngredientInputSchema).optional(),
     cooked_at: isoTimestamp.optional(),
     expires_at: isoTimestamp.optional(),
     notes: z.string().optional(),
   })
-  .refine((v) => Boolean(v.recipe_id) || Boolean(v.ingredients_override), {
-    message: 'either recipe_id or ingredients_override required',
-  });
+  .refine(
+    (v) => Boolean(v.recipe_id) || Boolean(v.ingredients_override) || Boolean(v.food_id),
+    { message: 'one of recipe_id, ingredients_override, or food_id required' },
+  );
 
 export const biomarkerValueTypeSchema = z.enum(['numeric', 'text', 'numeric_or_text']);
 export type BiomarkerValueType = z.infer<typeof biomarkerValueTypeSchema>;
@@ -458,3 +465,28 @@ export const logFluidOutputInputSchema = z.object({
   notes: z.string().optional(),
 });
 export type LogFluidOutputInput = z.infer<typeof logFluidOutputInputSchema>;
+
+// ── Meal Plan ──
+
+export const mealPlanMealTypeSchema = z.enum(['breakfast', 'lunch', 'dinner', 'snack']);
+export const mealPlanStatusSchema = z.enum(['planned', 'consumed', 'skipped']);
+
+export const upsertMealPlanEntryInputSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  meal_type: mealPlanMealTypeSchema,
+  recipe_id: z.string().min(1).nullable().optional(),
+  name: z.string().min(1),
+  servings: z.number().positive().optional(),
+  notes: z.string().nullable().optional(),
+});
+export type UpsertMealPlanEntryInput = z.infer<typeof upsertMealPlanEntryInputSchema>;
+
+export const updateMealPlanEntryInputSchema = z.object({
+  id: z.string().min(1),
+  recipe_id: z.string().min(1).nullable().optional(),
+  name: z.string().min(1).optional(),
+  servings: z.number().positive().optional(),
+  notes: z.string().nullable().optional(),
+  status: mealPlanStatusSchema.optional(),
+});
+export type UpdateMealPlanEntryInput = z.infer<typeof updateMealPlanEntryInputSchema>;

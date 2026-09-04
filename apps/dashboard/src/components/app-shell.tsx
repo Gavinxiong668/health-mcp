@@ -7,6 +7,7 @@ import {
   BarChart3,
   Beaker,
   CalendarCheck,
+  CalendarDays,
   ChefHat,
   CookingPot,
   FileText,
@@ -39,6 +40,7 @@ const NAV_LIBRARY: NavItem[] = [
   { to: '/foods', label: '食物', icon: Salad },
   { to: '/recipes', label: '食谱', icon: ChefHat },
   { to: '/batches', label: '批次', icon: CookingPot },
+  { to: '/plan', label: '计划', icon: CalendarDays },
 ];
 
 const NAV_SIGNALS: NavItem[] = [

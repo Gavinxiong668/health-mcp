@@ -7,6 +7,7 @@ import {
   macrosForFoodGrams,
   scaleMacros,
 } from './food.js';
+import { logMeal } from './meals.js';
 import { type Ctx, ServiceError } from './types.js';
 
 export type Recipe = {
@@ -247,7 +248,9 @@ export const createBatch = (
   args: {
     name?: string;
     recipe_id?: string;
+    food_id?: string;
     total_grams: number;
+    consumed_grams?: number;
     ingredients_override?: IngredientInput[];
     cooked_at?: string;
     expires_at?: string;
@@ -267,6 +270,9 @@ export const createBatch = (
       );
     }
     totals = scaleMacros(recipeTotals, args.total_grams / recipeGrams);
+  } else if (args.food_id) {
+    const food = getFood(ctx, args.food_id);
+    totals = macrosForFoodGrams(food, args.total_grams);
   } else if (args.ingredients_override) {
     totals = computeRecipeTotal(
       ctx,
@@ -275,13 +281,14 @@ export const createBatch = (
   } else {
     throw new ServiceError(
       'missing_source',
-      'either recipe_id or ingredients_override required',
+      'one of recipe_id, food_id, or ingredients_override required',
       400,
     );
   }
 
   const id = cuid();
   const cooked_at = args.cooked_at ?? new Date().toISOString();
+  const batchName = args.name ?? (args.food_id ? getFood(ctx, args.food_id).name : null);
   ctx.db
     .prepare(
       `INSERT INTO batches (
@@ -294,7 +301,7 @@ export const createBatch = (
     )
     .run(
       id,
-      args.name ?? null,
+      batchName,
       args.recipe_id ?? null,
       args.total_grams,
       args.total_grams,
@@ -314,6 +321,15 @@ export const createBatch = (
       args.expires_at ?? null,
       args.notes ?? null,
     );
+
+  // If consumed_grams is provided, immediately log a meal consuming from this batch
+  if (args.consumed_grams && args.consumed_grams > 0) {
+    logMeal(ctx, {
+      ts: cooked_at,
+      components: [{ ref: 'batch', batch_id: id, grams: args.consumed_grams }],
+    });
+  }
+
   return ctx.db.prepare('SELECT * FROM batches WHERE id = ?').get(id) as Batch;
 };
 

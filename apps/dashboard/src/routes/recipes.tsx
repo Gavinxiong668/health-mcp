@@ -25,6 +25,11 @@ const RecipeDetail = ({ id }: { id: string }) => {
         <CardTitle>{recipe.name}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {recipe.notes ? (
+          <div className="rounded-md border border-kumo-line/60 bg-kumo-fill/50 p-3 text-xs leading-relaxed text-kumo-default whitespace-pre-line">
+            {recipe.notes}
+          </div>
+        ) : null}
         <div className="grid grid-cols-2 gap-3 rounded-md bg-kumo-fill p-4 text-xs">
           <div>
             <div className="uppercase tracking-wide text-kumo-subtle">总计</div>

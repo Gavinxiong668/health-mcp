@@ -21,6 +21,8 @@ export type Config = {
   whoopClientSecret: string | null;
   ouraClientId: string | null;
   ouraClientSecret: string | null;
+  zeppClientId: string | null;
+  zeppClientSecret: string | null;
   wearableRedirectBase: string | null;
   whoopSyncCron: string;
   logLevel: LogLevel;
@@ -200,6 +202,8 @@ export const parseConfig = (argv: string[] = process.argv.slice(2)): Config => {
     whoopClientSecret: resolveString(undefined, 'WHOOP_CLIENT_SECRET', 'whoop_client_secret'),
     ouraClientId: resolveString(undefined, 'OURA_CLIENT_ID', 'oura_client_id'),
     ouraClientSecret: resolveString(undefined, 'OURA_CLIENT_SECRET', 'oura_client_secret'),
+    zeppClientId: resolveString(undefined, 'ZEPP_CLIENT_ID', 'zepp_client_id'),
+    zeppClientSecret: resolveString(undefined, 'ZEPP_CLIENT_SECRET', 'zepp_client_secret'),
     wearableRedirectBase,
     whoopSyncCron:
       resolveString(undefined, 'WHOOP_SYNC_CRON', 'whoop_sync_cron') ?? DEFAULTS.whoopSyncCron,

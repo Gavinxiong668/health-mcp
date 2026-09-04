@@ -41,6 +41,7 @@ export type FoodRow = {
   magnesium_mg: number | null;
   iron_mg: number | null;
   aliases: string | null;
+  category: string | null;
   created_at: string;
 };
 
@@ -101,10 +102,10 @@ const insertFood = (ctx: Ctx, row: FoodInsert): FoodRow => {
     .prepare(
       `INSERT INTO foods (id, source, source_id, external_id, name, brand, barcode, serving_grams,
         kcal_per_100g, protein_g, carb_g, fat_g, fiber_g, sugar_g, sat_fat_g, sodium_mg,
-        potassium_mg, calcium_mg, magnesium_mg, iron_mg, aliases, raw_json)
+        potassium_mg, calcium_mg, magnesium_mg, iron_mg, aliases, category, raw_json)
        VALUES (@id, @source, @source_id, @external_id, @name, @brand, @barcode, @serving_grams,
         @kcal_per_100g, @protein_g, @carb_g, @fat_g, @fiber_g, @sugar_g, @sat_fat_g, @sodium_mg,
-        @potassium_mg, @calcium_mg, @magnesium_mg, @iron_mg, @aliases, @raw_json)`,
+        @potassium_mg, @calcium_mg, @magnesium_mg, @iron_mg, @aliases, @category, @raw_json)`,
     )
     .run({
       id,
@@ -128,6 +129,7 @@ const insertFood = (ctx: Ctx, row: FoodInsert): FoodRow => {
       magnesium_mg: row.magnesium_mg ?? null,
       iron_mg: row.iron_mg ?? null,
       aliases: row.aliases ?? null,
+      category: row.category ?? null,
       raw_json: row.raw_json ?? null,
     });
   return getFood(ctx, id);
@@ -332,6 +334,7 @@ const upsertManualFood = (
     brand: input.brand ?? null,
     serving_grams: input.serving_grams ?? null,
     aliases: serializeAliases(input.aliases),
+    category: input.category ?? null,
     ...cols,
   };
   if (existing) {
@@ -340,6 +343,7 @@ const upsertManualFood = (
         `UPDATE foods SET
           name = @name, brand = @brand, serving_grams = @serving_grams,
           external_id = COALESCE(@external_id, external_id), aliases = @aliases,
+          category = @category,
           kcal_per_100g = @kcal_per_100g, protein_g = @protein_g, carb_g = @carb_g, fat_g = @fat_g,
           fiber_g = @fiber_g, sugar_g = @sugar_g, sat_fat_g = @sat_fat_g, sodium_mg = @sodium_mg,
           potassium_mg = @potassium_mg, calcium_mg = @calcium_mg,
@@ -403,6 +407,7 @@ export const updateCustomFood = (ctx: Ctx, args: UpdateCustomFoodInput): FoodRow
         ? null
         : normalizeExternalId(args.external_id);
   const aliases = args.aliases === undefined ? existing.aliases : serializeAliases(args.aliases);
+  const category = args.category === undefined ? existing.category : (args.category ?? null);
   ctx.db
     .prepare(
       `UPDATE foods SET
@@ -411,6 +416,7 @@ export const updateCustomFood = (ctx: Ctx, args: UpdateCustomFoodInput): FoodRow
         serving_grams = ?,
         external_id = ?,
         aliases = ?,
+        category = ?,
         kcal_per_100g = COALESCE(?, kcal_per_100g),
         protein_g = COALESCE(?, protein_g),
         carb_g = COALESCE(?, carb_g),
@@ -431,6 +437,7 @@ export const updateCustomFood = (ctx: Ctx, args: UpdateCustomFoodInput): FoodRow
       args.serving_grams === undefined ? existing.serving_grams : args.serving_grams,
       externalId,
       aliases,
+      category,
       n?.kcal_per_100g ?? null,
       n?.protein_g ?? null,
       n?.carb_g ?? null,
@@ -573,4 +580,29 @@ export const macrosForCustom = (spec: CustomFoodSpec, grams: number): Macros => 
     },
     grams / 100,
   );
+};
+
+// ── Category browsing ──
+
+export const listFoodCategories = (ctx: Ctx): Array<{ category: string; count: number }> => {
+  return ctx.db
+    .prepare(
+      `SELECT category, COUNT(*) as count FROM foods
+       WHERE category IS NOT NULL
+       GROUP BY category ORDER BY count DESC`,
+    )
+    .all() as Array<{ category: string; count: number }>;
+};
+
+export const listFoodsByCategory = (
+  ctx: Ctx,
+  category: string,
+): FoodSearchHitDto[] => {
+  const rows = ctx.db
+    .prepare(
+      `SELECT * FROM foods WHERE category = ? COLLATE NOCASE
+       ORDER BY source = 'manual' DESC, name ASC`,
+    )
+    .all(category) as FoodRow[];
+  return rows.map((r) => ({ ...r, score: 1, exact: true }));
 };

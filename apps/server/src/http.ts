@@ -37,6 +37,7 @@ export const createHonoApp = (opts: {
         usda: Boolean(config.usdaApiKey),
         whoop: Boolean(config.whoopClientId && config.whoopClientSecret),
         oura: Boolean(config.ouraClientId && config.ouraClientSecret),
+        zepp: true, // Zepp uses push endpoints, always available
       },
     }),
   );

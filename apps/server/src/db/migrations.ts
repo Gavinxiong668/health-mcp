@@ -8,6 +8,12 @@ import { migration0013 } from './sql/0013-weight-source-and-day-strain.js';
 import { migration0014 } from './sql/0014-backfill-day-strain.js';
 import { migration0015 } from './sql/0015-backfill-biomarker-ranges.js';
 import { migration0020 } from './sql/0020-clinical-extensions.js';
+import { migration0021 } from './sql/0021-zepp-wearable-provider.js';
+import { migration0022 } from './sql/0022-zepp-heart-rate-table.js';
+import { migration0023 } from './sql/0023-meal-plan.js';
+import { migration0024 } from './sql/0024-meal-plan-multi.js';
+import { migration0025 } from './sql/0025-food-category.js';
+import { migration0026 } from './sql/0026-foods-chinese-names.js';
 
 export type Migration = {
   id: string;
@@ -24,6 +30,12 @@ const migrations: Migration[] = [
   migration0014,
   migration0015,
   migration0020,
+  migration0021,
+  migration0022,
+  migration0023,
+  migration0024,
+  migration0025,
+  migration0026,
 ];
 
 const ensureTable = (db: Db) => {

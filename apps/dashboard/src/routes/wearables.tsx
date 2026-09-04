@@ -410,7 +410,7 @@ const Wearables = () => {
   const setTab = (next: WearableTab) => navigate({ search: (prev) => ({ ...prev, tab: next }) });
 
   const providerList = providers.data ?? [];
-  const anyLinked = providerList.some((p) => p.status === 'linked');
+  const hasProviders = providerList.length > 0;
 
   if (providers.isLoading) {
     return (
@@ -420,7 +420,18 @@ const Wearables = () => {
     );
   }
 
-  if (!anyLinked) {
+  // Only show the "no providers" empty state when there are truly no
+  // providers configured AND no push-based data (e.g. Zepp) in the DB.
+  // We check whether the data queries return anything below, so we no
+  // longer gate on `anyLinked` which excluded push-only providers.
+  const showEmptyState =
+    !hasProviders &&
+    (readiness.data ?? []).length === 0 &&
+    (sleep.data ?? []).length === 0 &&
+    (activity.data ?? []).length === 0 &&
+    (daily.data ?? []).length === 0;
+
+  if (showEmptyState) {
     return (
       <>
         <PageHeader
@@ -431,23 +442,25 @@ const Wearables = () => {
           <Empty
             icon={Watch}
             title="未连接可穿戴设备"
-            description="在下方关联提供商 — 数据会同步到本地数据库并显示在这里。"
+            description="在下方关联提供商或通过手表端小程序推送数据 — 数据会同步到本地数据库并显示在这里。"
           />
-          <div className="grid gap-3">
-            {providerList.map((p) => (
-              <ProviderCard
-                key={p.id}
-                p={p}
-                st={status.data?.find((s) => s.provider === p.id)}
-                onConnect={(id) => connect.mutate(id)}
-                onDisconnect={(id) => disconnect.mutate(id)}
-                onSync={(id) => sync.mutate(id)}
-                connecting={connect.isPending}
-                disconnecting={disconnect.isPending}
-                syncing={sync.isPending}
-              />
-            ))}
-          </div>
+          {hasProviders ? (
+            <div className="grid gap-3">
+              {providerList.map((p) => (
+                <ProviderCard
+                  key={p.id}
+                  p={p}
+                  st={status.data?.find((s) => s.provider === p.id)}
+                  onConnect={(id) => connect.mutate(id)}
+                  onDisconnect={(id) => disconnect.mutate(id)}
+                  onSync={(id) => sync.mutate(id)}
+                  connecting={connect.isPending}
+                  disconnecting={disconnect.isPending}
+                  syncing={sync.isPending}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
       </>
     );
@@ -462,6 +475,8 @@ const Wearables = () => {
   const latestRecovery = readinessRows[0];
   const latestSleep = sleepRows[0];
   const latestStrain = dailyRows.find((d) => d.strain != null);
+  // Latest daily row with any data (for steps / HR from push providers)
+  const latestDaily = dailyRows[0];
 
   const recoverySeries = reverseSeries(
     readinessRows,
@@ -530,14 +545,20 @@ const Wearables = () => {
                 hint={
                   latestRecovery?.hrv_rmssd != null
                     ? `HRV ${fmtNum(latestRecovery.hrv_rmssd, 0)} ms`
-                    : '暂无数据'
+                    : latestDaily?.hr_avg != null
+                      ? `静息 ${fmtNum(latestDaily.hr_avg, 0)} bpm`
+                      : '暂无数据'
                 }
               />
               <StatCard
-                icon={Zap}
-                label="日间负荷"
-                value={latestStrain?.strain != null ? fmtNum(latestStrain.strain, 1) : '—'}
-                hint="0–21 量表"
+                icon={Footprints}
+                label="步数"
+                value={latestDaily?.steps != null ? fmtNum(latestDaily.steps, 0) : '—'}
+                hint={
+                  latestDaily?.distance_m != null && latestDaily.distance_m > 0
+                    ? `${fmtNum(latestDaily.distance_m / 1000, 1)} km`
+                    : '今日累计'
+                }
               />
               <StatCard
                 icon={Moon}
@@ -547,10 +568,14 @@ const Wearables = () => {
                 hint={latestSleep ? `睡眠 ${fmtDuration(latestSleep.duration_s)}` : '暂无数据'}
               />
               <StatCard
-                icon={Scale}
-                label="体重"
-                value={body?.weight_kg != null ? `${fmtNum(body.weight_kg, 1)} kg` : '—'}
-                hint={body?.weight_kg != null ? '来自 Whoop' : '暂无数据'}
+                icon={Zap}
+                label="日间负荷"
+                value={latestStrain?.strain != null ? fmtNum(latestStrain.strain, 1) : '—'}
+                hint={
+                  latestDaily?.kcal_active != null
+                    ? `${fmtNum(latestDaily.kcal_active, 0)} kcal`
+                    : '0–21 量表'
+                }
               />
             </div>
 

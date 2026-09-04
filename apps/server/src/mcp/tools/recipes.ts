@@ -77,21 +77,24 @@ export const recipeTools = [
   tool({
     name: 'create_batch',
     description:
-      'Record a cooked batch. Either reference a recipe (macros scaled to total_grams) or pass ingredients_override.',
+      'Record a cooked batch or log food intake. Provide food_id + total_grams to record eating a food directly (set consumed_grams equal to total_grams to consume immediately). Or reference a recipe. Or pass ingredients_override.',
     group: 'batch',
     inputSchema: z
       .object({
         name: z.string().optional(),
         recipe_id: z.string().min(1).optional(),
+        food_id: z.string().min(1).optional(),
         total_grams: z.number().positive(),
+        consumed_grams: z.number().positive().optional(),
         ingredients_override: z.array(ingredientSchema).optional(),
         cooked_at: z.string().optional(),
         expires_at: z.string().optional(),
         notes: z.string().optional(),
       })
-      .refine((v) => Boolean(v.recipe_id) || Boolean(v.ingredients_override), {
-        message: 'either recipe_id or ingredients_override required',
-      }),
+      .refine(
+        (v) => Boolean(v.recipe_id) || Boolean(v.ingredients_override) || Boolean(v.food_id),
+        { message: 'one of recipe_id, food_id, or ingredients_override required' },
+      ),
     handler: (args, ctx) => createBatch(ctx, args),
   }),
   tool({

@@ -7,6 +7,7 @@ export type WearableProviderId =
   | 'apple_health'
   | 'fitbit'
   | 'polar'
+  | 'zepp'
   | (string & {});
 
 export type ResourceKind = 'sleep' | 'activity' | 'readiness' | 'daily' | 'profile' | 'body';

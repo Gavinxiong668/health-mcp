@@ -42,6 +42,8 @@ import {
   deleteCustomFood,
   getFood,
   getFoodByExternalId,
+  listFoodCategories,
+  listFoodsByCategory,
   lookupBarcode,
   searchFood,
   updateCustomFood,
@@ -68,7 +70,16 @@ import {
   logMedicationDose,
   updateMedication,
 } from '../services/medications.js';
-import { deletePain, listPain, logPain } from '../services/pain.js';
+import {
+  deleteMealPlanEntry,
+  getMealPlanEntry,
+  listMealPlanEntries,
+  updateMealPlanEntry,
+  createMealPlanEntry,
+} from '../services/meal-plan.js';
+import {
+  deletePain, listPain, logPain,
+} from '../services/pain.js';
 import {
   archiveBatch,
   createBatch,
@@ -103,6 +114,13 @@ import {
 import { dailySummary, rangeSummary, weeklySummary } from '../services/summaries.js';
 import { ServiceError } from '../services/types.js';
 import type { WearableServiceCtx } from '../services/wearables.js';
+import {
+  ingestZeppActivity,
+  ingestZeppBatch,
+  ingestZeppHeartRate,
+  ingestZeppReadiness,
+  ingestZeppSleep,
+} from '../services/zepp.js';
 import {
   handleOAuthCallback,
   setActivityTypeMap,
@@ -159,6 +177,12 @@ export const mountRestRoutes = (app: Hono, ctx: WearableServiceCtx): void => {
   );
   app.get('/api/foods/external/:externalId', (c) =>
     wrap(c, () => getFoodByExternalId(ctx, c.req.param('externalId'))),
+  );
+  app.get('/api/foods/categories', (c) =>
+    wrap(c, () => listFoodCategories(ctx)),
+  );
+  app.get('/api/foods/by-category/:category', (c) =>
+    wrap(c, () => listFoodsByCategory(ctx, decodeURIComponent(c.req.param('category')))),
   );
   app.post('/api/foods/bulk', (c) =>
     wrap(c, async () => bulkUpsertCustomFoods(ctx, await parseBody(c))),
@@ -464,6 +488,23 @@ export const mountRestRoutes = (app: Hono, ctx: WearableServiceCtx): void => {
   );
   app.get('/api/whoop/body', (c) => wrap(c, () => whoopBodyMeasurement(ctx)));
 
+  // Zepp push endpoints (watch-side mini-app → server)
+  app.post('/api/zepp/heartrate', (c) =>
+    wrap(c, async () => ingestZeppHeartRate(ctx, await parseBody(c))),
+  );
+  app.post('/api/zepp/activity', (c) =>
+    wrap(c, async () => ingestZeppActivity(ctx, await parseBody(c))),
+  );
+  app.post('/api/zepp/sleep', (c) =>
+    wrap(c, async () => ingestZeppSleep(ctx, await parseBody(c))),
+  );
+  app.post('/api/zepp/readiness', (c) =>
+    wrap(c, async () => ingestZeppReadiness(ctx, await parseBody(c))),
+  );
+  app.post('/api/zepp/batch', (c) =>
+    wrap(c, async () => ingestZeppBatch(ctx, await parseBody(c))),
+  );
+
   // Blood pressure
   app.get('/api/blood-pressure', (c) =>
     wrap(c, () =>
@@ -573,6 +614,30 @@ export const mountRestRoutes = (app: Hono, ctx: WearableServiceCtx): void => {
   );
   app.delete('/api/fluid-output/:id', (c) =>
     wrap(c, () => deleteFluidOutput(ctx, c.req.param('id'))),
+  );
+
+  // Meal plan
+  app.get('/api/meal-plan', (c) =>
+    wrap(c, () =>
+      listMealPlanEntries(ctx, {
+        start: c.req.query('start'),
+        end: c.req.query('end'),
+      }),
+    ),
+  );
+  app.post('/api/meal-plan', (c) =>
+    wrap(c, async () => createMealPlanEntry(ctx, await parseBody(c))),
+  );
+  app.get('/api/meal-plan/:id', (c) =>
+    wrap(c, () => getMealPlanEntry(ctx, c.req.param('id'))),
+  );
+  app.patch('/api/meal-plan/:id', (c) =>
+    wrap(c, async () =>
+      updateMealPlanEntry(ctx, { id: c.req.param('id'), ...(await mergeBody(c)) }),
+    ),
+  );
+  app.delete('/api/meal-plan/:id', (c) =>
+    wrap(c, () => deleteMealPlanEntry(ctx, c.req.param('id'))),
   );
 
   // Health report

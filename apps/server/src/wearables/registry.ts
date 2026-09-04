@@ -1,6 +1,7 @@
 import type { Ctx } from '../services/types.js';
 import { createOuraProvider } from './providers/oura/index.js';
 import { createWhoopProvider } from './providers/whoop/index.js';
+import { createZeppProvider } from './providers/zepp/index.js';
 import type { WearableProvider, WearableProviderId } from './types.js';
 
 let registry: Map<WearableProviderId, WearableProvider> | null = null;
@@ -19,6 +20,12 @@ export const initRegistry = (ctx: Ctx): void => {
     logger: ctx.logger,
   });
   if (oura) registry.set(oura.id, oura);
+  const zepp = createZeppProvider({
+    clientId: ctx.config.zeppClientId,
+    clientSecret: ctx.config.zeppClientSecret,
+    logger: ctx.logger,
+  });
+  if (zepp) registry.set(zepp.id, zepp);
 };
 
 export const getProvider = (id: WearableProviderId): WearableProvider | null => {

@@ -21,6 +21,7 @@ import type {
   LatestBiomarkerRowDto,
   MealComponentInput,
   MealDto,
+  MealPlanEntryDto,
   MeasurementDto,
   MedicationDto,
   MedicationLogEntryDto,
@@ -113,10 +114,13 @@ export const api = {
     byBarcode: (barcode: string) =>
       get<FoodDto | null>(`/api/foods/barcode/${encodeURIComponent(barcode)}`),
     get: (id: string) => get<FoodDto>(`/api/foods/${encodeURIComponent(id)}`),
-    createCustom: (body: CustomFoodInput) => post<FoodDto>('/api/foods', body),
+    createCustom: (body: Record<string, unknown>) => post<FoodDto>('/api/foods', body),
     updateCustom: (id: string, body: Record<string, unknown>) =>
       patch<FoodDto>(`/api/foods/${encodeURIComponent(id)}`, body),
     deleteCustom: (id: string) => del<{ id: string }>(`/api/foods/${encodeURIComponent(id)}`),
+    categories: () => get<Array<{ category: string; count: number }>>('/api/foods/categories'),
+    byCategory: (category: string) =>
+      get<FoodSearchHitDto[]>(`/api/foods/by-category/${encodeURIComponent(category)}`),
   },
 
   meals: {
@@ -340,6 +344,16 @@ export const api = {
     log: (body: { kind: string; ml: number; ts?: string; notes?: string }) =>
       post<FluidOutputEntryDto>('/api/fluid-output', body),
     delete: (id: string) => del<{ id: string }>(`/api/fluid-output/${encodeURIComponent(id)}`),
+  },
+
+  mealPlan: {
+    list: (params: { start: string; end: string }) =>
+      get<MealPlanEntryDto[]>(`/api/meal-plan${qs(params)}`),
+    get: (id: string) => get<MealPlanEntryDto>(`/api/meal-plan/${encodeURIComponent(id)}`),
+    upsert: (body: unknown) => post<MealPlanEntryDto>('/api/meal-plan', body),
+    update: (id: string, body: unknown) =>
+      patch<MealPlanEntryDto>(`/api/meal-plan/${encodeURIComponent(id)}`, body),
+    delete: (id: string) => del<{ id: string }>(`/api/meal-plan/${encodeURIComponent(id)}`),
   },
 
   report: (params: { start: string; end: string }) =>

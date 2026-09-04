@@ -1,6 +1,6 @@
 # Wearables
 
-Provider-agnostic abstraction over OAuth wearables. Today: **Whoop** and **Oura**. Future: Fitbit, Polar, Garmin (OAuth1), Apple Health (file_import).
+Provider-agnostic abstraction over OAuth wearables. Today: **Whoop**, **Oura**, and **Zepp Health (华米)**. Future: Fitbit, Polar, Garmin (OAuth1), Apple Health (file_import).
 
 Read the [Data model — Wearables](./DATA_MODEL.md#wearables) section first if you haven't — it explains the raw / normalized two-tier split.
 
@@ -152,6 +152,7 @@ Extending = `set_activity_type_map({ provider, raw_type, canonical })`. Zero cod
 |---|---|---|---|---|---|---|---|
 | Whoop | OAuth2 | ✓ stage + respiratory | ✓ HR zones, strain, kj | ✓ HRV / RHR / SpO2 / skin temp | ✓ via cycles → kcal_active | — | v2 API. Refresh tokens rotate. 90/min ceiling. |
 | Oura | OAuth2 | ✓ | ✓ | ✓ | ✓ | (planned) | Daily endpoints, dedicated rate-limited client. |
+| Zepp Health | OAuth2 | ✓ | ✓ | ✓ | ✓ | — | API access pending. Placeholder endpoints. |
 | Fitbit | (not implemented) | | | | | | OAuth2; sleep/activities/heart. |
 | Polar | (not implemented) | | | | | | OAuth2 AccessLink. |
 | Garmin | (not implemented) | | | | | | OAuth 1.0a; needs provider interface to tolerate older OAuth. |
@@ -172,6 +173,15 @@ Extending = `set_activity_type_map({ provider, raw_type, canonical })`. Zero cod
 - OAuth2, daily endpoint family. Dedicated rate-limited client mirrors the Whoop approach.
 - Resources synced: `sleep`, `daily_sleep` (score), `daily_activity`, `daily_readiness`, `workouts`.
 - Activity type map seeded so common workout strings land on canonical types.
+
+## Zepp Health specifics
+
+- OAuth2, API access currently pending from Zepp developer center.
+- Resources synced: `profile`, `sleep`, `activity`, `readiness`, `daily`.
+- Placeholder API endpoints at `api.zepp.com` — update once official API documentation is received.
+- Supports Amazfit/Zepp smartwatches with sleep tracking, activity monitoring, heart rate, SpO2, and readiness scores.
+- Rate limiting: conservative token bucket (1000 requests/day capacity).
+- Activity type map needs seeding once actual API response types are known.
 
 ## Adding a new provider
 

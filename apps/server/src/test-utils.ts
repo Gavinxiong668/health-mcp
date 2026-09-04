@@ -36,6 +36,8 @@ export const makeTestCtx = (overrides: Partial<Config> = {}): TestCtx => {
     whoopClientSecret: null,
     ouraClientId: null,
     ouraClientSecret: null,
+    zeppClientId: null,
+    zeppClientSecret: null,
     wearableRedirectBase: 'http://127.0.0.1:7777/auth/wearable/callback',
     whoopSyncCron: '*/30 * * * *',
     logLevel: 'error',

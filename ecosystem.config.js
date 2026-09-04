@@ -4,8 +4,6 @@ module.exports = {
     script: 'pnpm',
     args: 'start',
     cwd: '/home/gavin/health-mcp/health-mcp',
-    env: {
-      HEALTH_MCP_TOKEN: 'a3dafa54ae4b6eb96fe629f14c96ca7b0ebf8b3e43b1b2ce28e67ff0f5d54345'
-    }
+    env_file: '.env'
   }]
 };
