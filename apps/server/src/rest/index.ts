@@ -14,6 +14,7 @@ import {
   getBiomarker,
   getLabPanelDetail,
   latestBiomarkers,
+  listBiomarkerCategories,
   listLabPanels,
   listLabResults,
   logLabPanel,
@@ -354,6 +355,9 @@ export const mountRestRoutes = (app: Hono, ctx: WearableServiceCtx): void => {
   );
 
   // Biomarkers / labs
+  app.get('/api/biomarkers/categories', (c) =>
+    wrap(c, () => listBiomarkerCategories(ctx)),
+  );
   app.get('/api/biomarkers', (c) =>
     wrap(c, () =>
       c.req.query('query')

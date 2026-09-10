@@ -212,6 +212,7 @@ export const api = {
   },
 
   biomarkers: {
+    categories: () => get<Array<{ name: string; count: number }>>('/api/biomarkers/categories'),
     search: (
       params: {
         query?: string;

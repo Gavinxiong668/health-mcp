@@ -14,6 +14,7 @@ import { migration0023 } from './sql/0023-meal-plan.js';
 import { migration0024 } from './sql/0024-meal-plan-multi.js';
 import { migration0025 } from './sql/0025-food-category.js';
 import { migration0026 } from './sql/0026-foods-chinese-names.js';
+import { migration0027 } from './sql/0027-lab-draft-support.js';
 
 export type Migration = {
   id: string;
@@ -36,6 +37,7 @@ const migrations: Migration[] = [
   migration0024,
   migration0025,
   migration0026,
+  migration0027,
 ];
 
 const ensureTable = (db: Db) => {

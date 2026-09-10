@@ -36,6 +36,7 @@ export type LabResult = {
   ref_text: string | null;
   interpretation: string | null;
   notes: string | null;
+  draft: number;
   created_at: string;
 };
 
@@ -242,6 +243,7 @@ type LabResultInput = {
   ref_text?: string;
   interpretation?: string;
   notes?: string;
+  draft?: boolean;
 };
 
 const insertLabResult = (
@@ -252,6 +254,7 @@ const insertLabResult = (
   let value = args.value_numeric ?? null;
   let unit = args.unit_ucum ?? b.default_unit_ucum;
   let notes = args.notes ?? null;
+  const isDraft = args.draft === true;
   if (
     value !== null &&
     unit.toLowerCase() !== b.default_unit_ucum.toLowerCase() &&
@@ -267,7 +270,7 @@ const insertLabResult = (
       notes = notes ? `${notes}; unit_mismatch` : 'unit_mismatch';
     }
   }
-  if (value === null && args.value_text === undefined) {
+  if (!isDraft && value === null && args.value_text === undefined) {
     throw new ServiceError('missing_value', 'either value_numeric or value_text required', 400);
   }
   const id = cuid();
@@ -275,8 +278,8 @@ const insertLabResult = (
     .prepare(
       `INSERT INTO lab_results (
         id, biomarker_id, panel_id, taken_at, value_numeric, value_text, unit_ucum,
-        ref_low, ref_high, ref_text, interpretation, notes
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ref_low, ref_high, ref_text, interpretation, notes, draft
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .run(
       id,
@@ -291,6 +294,7 @@ const insertLabResult = (
       args.ref_text ?? null,
       args.interpretation ?? null,
       notes,
+      isDraft ? 1 : 0,
     );
   return ctx.db.prepare('SELECT * FROM lab_results WHERE id = ?').get(id) as LabResult;
 };
@@ -350,7 +354,7 @@ export const listLabResults = (
     out_of_range_only?: boolean;
     limit?: number;
   } = {},
-): Array<LabResult & { status: BiomarkerStatus }> => {
+): Array<LabResult & { status: BiomarkerStatus; biomarker: Biomarker }> => {
   const conds: string[] = [];
   const params: unknown[] = [];
   if (args.biomarker) {
@@ -378,7 +382,10 @@ export const listLabResults = (
   const rows = ctx.db
     .prepare(`SELECT lr.* FROM lab_results lr ${join} ${where} ORDER BY lr.taken_at DESC LIMIT ?`)
     .all(...params) as LabResult[];
-  const withStatus = rows.map((r) => ({ ...r, status: statusForResult(ctx, r) }));
+  const withStatus = rows.map((r) => {
+    const biomarker = ctx.db.prepare('SELECT * FROM biomarkers WHERE id = ?').get(r.biomarker_id) as Biomarker;
+    return { ...r, status: statusForResult(ctx, r, biomarker), biomarker };
+  });
   if (args.out_of_range_only) return withStatus.filter((r) => r.status === 'out_of_ref');
   return withStatus;
 };
@@ -565,4 +572,16 @@ export const deleteLabPanel = (ctx: Ctx, id: string): { id: string } => {
   const r = ctx.db.prepare('DELETE FROM lab_panels WHERE id = ?').run(id);
   if (r.changes === 0) throw new ServiceError('panel_not_found', `panel ${id} not found`, 404);
   return { id };
+};
+
+export const listBiomarkerCategories = (ctx: Ctx): Array<{ name: string; count: number }> => {
+  return ctx.db
+    .prepare(
+      `SELECT c.name, COUNT(DISTINCT m.biomarker_id) as count
+       FROM biomarker_categories c
+       LEFT JOIN biomarker_category_map m ON m.category_id = c.id
+       GROUP BY c.id, c.name
+       ORDER BY c.name COLLATE NOCASE`,
+    )
+    .all() as Array<{ name: string; count: number }>;
 };

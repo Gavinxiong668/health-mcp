@@ -27,6 +27,7 @@ const labResultInput = z.object({
   ref_text: z.string().optional(),
   interpretation: z.string().optional(),
   notes: z.string().optional(),
+  draft: z.boolean().optional(),
 });
 
 export const biomarkerTools = [

@@ -1007,5 +1007,46 @@
     "why_it_matters": "Alpha-tocopherol is the main circulating form of vitamin E, a fat-soluble antioxidant that protects cell membranes and LDL particles from oxidation. Deficiency is rare outside of fat malabsorption but causes neurological symptoms (ataxia, neuropathy) and hemolytic anemia over time. Isolated high-dose alpha-tocopherol can displace gamma-tocopherol, which has its own protective role, so mixed tocopherols may matter more than alpha alone.",
     "influences": "Dietary fat intake (it requires fat for absorption), nuts, seeds, avocado, and olive oil raise it. Polyunsaturated fat intake increases the requirement because PUFAs oxidize readily. Fat malabsorption (cystic fibrosis, cholestatic liver disease, short bowel) and very low-fat diets lower it.",
     "how_to_improve": "Eat a small handful of almonds or sunflower seeds daily, avocado, and extra-virgin olive oil with meals. If supplementing, choose mixed tocopherols (including gamma) at 100 to 400 IU rather than isolated synthetic dl-alpha-tocopherol. Take with a fat-containing meal."
+  },
+  {
+    "loinc_code": "2777-1",
+    "name": "Phosphorus",
+    "aliases": [
+      "Phosphate",
+      "P"
+    ],
+    "display_name": "Phosphorus",
+    "default_unit_ucum": "mg/dL",
+    "default_ref_low": 2.5,
+    "default_ref_high": 4.5,
+    "categories": [
+      "CMP",
+      "Minerals",
+      "Kidney"
+    ],
+    "why_it_matters": "Phosphorus is critical for bone mineralization, energy metabolism (ATP), and acid-base balance. In dialysis patients, impaired kidney excretion causes phosphorus retention, leading to hyperphosphatemia, secondary hyperparathyroidism, vascular calcification, and bone disease. It is one of the most tightly monitored markers in end-stage renal disease.",
+    "influences": "Dietary phosphate intake (dairy, nuts, colas, processed foods with phosphate additives), vitamin D status, PTH level, kidney function, and dialysis adequacy all shift it. Phosphate binders taken with meals lower absorption.",
+    "how_to_improve": "For dialysis patients: limit high-phosphate foods (dairy, nuts, colas, processed meats), take phosphate binders with every meal as prescribed, and ensure adequate dialysis clearance. K/DOQI target is 3.5–5.5 mg/dL."
+  },
+  {
+    "loinc_code": "2731-8",
+    "name": "PTH",
+    "aliases": [
+      "Parathyroid Hormone",
+      "Intact PTH",
+      "iPTH"
+    ],
+    "display_name": "Parathyroid Hormone",
+    "default_unit_ucum": "pg/mL",
+    "default_ref_low": 15,
+    "default_ref_high": 65,
+    "categories": [
+      "Hormones - adrenal",
+      "Minerals",
+      "Kidney"
+    ],
+    "why_it_matters": "PTH regulates calcium and phosphorus balance and bone turnover. In chronic kidney disease and dialysis, declining phosphate excretion and reduced vitamin D activation drive secondary hyperparathyroidism. Persistently high PTH causes renal osteodystrophy, vascular calcification, and pruritus; overly suppressed PTH signals adynamic bone disease.",
+    "influences": "Serum phosphorus, calcium, and calcitriol (active vitamin D) levels all feed back on PTH. Calcimimetics (cinacalcet) lower it; vitamin D analogs (paricalcitol) suppress it; high-phosphate diet raises it. Dialysis adequacy also matters.",
+    "how_to_improve": "For dialysis patients: KDIGO recommends keeping PTH between 2–9× the upper normal limit (roughly 130–585 pg/mL). Control phosphorus with binders and diet, use active vitamin D analogs or calcimimetics as prescribed, and monitor calcium to avoid over-suppression."
   }
 ]
